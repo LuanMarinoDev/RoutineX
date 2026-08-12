@@ -1,0 +1,452 @@
+/* =========================================================
+   RoutineX — layout.css
+   Estrutura do app: sidebar, topbar, conteúdo, drawer, toasts
+
+   Escrito mobile first: o padrão é a tela pequena — uma coluna,
+   sidebar como gaveta e navegação na barra inferior. As versões
+   maiores entram por min-width, em responsive.css.
+   ========================================================= */
+
+.app {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 100dvh;
+}
+
+/* ---------- Sidebar (gaveta no celular) ---------- */
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  width: min(86vw, 300px);
+  height: 100dvh;
+  padding: calc(var(--sp-5) + env(safe-area-inset-top)) var(--sp-4) var(--sp-5);
+  overflow-y: auto;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  transform: translateX(-102%);
+  transition: transform var(--t);
+  box-shadow: var(--shadow-2);
+}
+
+.sidebar[data-open="true"] {
+  transform: translateX(0);
+}
+
+/* A marca é só a logo — sem nome, sem assinatura ao lado. */
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-2) 0 0;
+  margin-bottom: var(--sp-6);
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand:hover .brand__mark {
+  border-color: var(--accent-line);
+  transform: translateY(-1px);
+}
+
+.brand:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: var(--r-md);
+}
+
+.brand__mark {
+  display: grid;
+  place-items: center;
+  width: var(--brand-size, 56px);
+  height: var(--brand-size, 56px);
+  flex: none;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  background: var(--accent);
+  color: var(--accent-ink);
+  transition: border-color var(--t), transform var(--t);
+}
+
+/* Slot da logo: o arquivo de LOGO_FILE assume o quadro. A altura vem de
+   --brand-size e a largura acompanha a proporção, então logos deitadas
+   (como uma marca 3:2) aparecem inteiras, sem corte nem deformação. */
+.brand__logo {
+  height: var(--brand-size, 56px);
+  width: auto;
+  max-width: 100%;
+  border-radius: inherit;
+  object-fit: contain;
+}
+
+.brand__glyph {
+  display: grid;
+  place-items: center;
+}
+
+/* Com imagem própria, quem manda no formato é a logo: o quadro colorido
+   sai da frente e o PNG (de fundo transparente) assenta direto na
+   superfície, seja ela clara ou escura. */
+.brand__mark:has(.brand__logo:not([hidden])) {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  background: transparent;
+  border-radius: 0;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav__label {
+  padding: 0 var(--sp-2);
+  margin-bottom: var(--sp-2);
+}
+
+.nav__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  height: 40px;
+  padding: 0 var(--sp-3);
+  border-radius: var(--r-sm);
+  font-size: 0.9375rem;
+  color: var(--text-2);
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.nav__link svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  opacity: 0.85;
+}
+
+.nav__link:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.nav__link[aria-current="page"] {
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 550;
+}
+
+.nav__link[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--sp-4) * -1 - 1px);
+  top: 50%;
+  width: 2px;
+  height: 18px;
+  border-radius: 0 2px 2px 0;
+  background: var(--accent);
+  transform: translateY(-50%);
+}
+
+.nav__link[aria-current="page"] svg {
+  color: var(--accent);
+  opacity: 1;
+}
+
+.sidebar__foot {
+  margin-top: auto;
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
+}
+
+.sidebar__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3) 0;
+  font-size: 0.75rem;
+  color: var(--text-3);
+}
+
+.theme-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 var(--sp-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+
+/* ---------- Coluna principal ---------- */
+
+.app__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* ---------- Topbar ---------- */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: var(--topbar-h);
+  padding: 0 var(--sp-4);
+  padding-top: env(safe-area-inset-top);
+  background: var(--topbar-bg);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.topbar__spacer {
+  flex: 1;
+}
+
+/* No celular a busca é um botão; o campo aparece a partir de 900px. */
+.topbar__burger,
+.topbar__search-btn {
+  display: inline-flex;
+}
+
+.search {
+  display: none;
+  position: relative;
+  width: min(320px, 34vw);
+}
+
+.search .input {
+  cursor: pointer;
+}
+
+.search svg {
+  position: absolute;
+  top: 50%;
+  left: var(--sp-3);
+  width: 15px;
+  height: 15px;
+  color: var(--text-3);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.search .input {
+  height: 38px;
+  min-height: 38px;
+  padding-left: 36px;
+  font-size: 0.875rem;
+}
+
+/* ---------- Conteúdo ---------- */
+
+.content {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  /* O respiro final acomoda a barra de navegação inferior do celular. */
+  padding: var(--sp-5) var(--sp-4)
+    calc(var(--sp-9) + var(--tabbar-h) + env(safe-area-inset-bottom));
+}
+
+.page-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+
+.page-head__title {
+  margin-top: var(--sp-1);
+}
+
+.page-head__sub {
+  margin-top: var(--sp-2);
+  font-size: 0.9375rem;
+  color: var(--text-2);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-5);
+}
+
+/* ---------- Drawer (mobile) ---------- */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: var(--scrim);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--t), visibility var(--t);
+}
+
+.scrim[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+}
+
+body[data-drawer="open"] {
+  overflow: hidden;
+}
+
+/* ---------- Toasts ---------- */
+
+.toasts {
+  position: fixed;
+  right: var(--sp-5);
+  bottom: var(--sp-5);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  width: min(340px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-2);
+  font-size: 0.875rem;
+  pointer-events: auto;
+  animation: toast-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.toast[data-closing="true"] {
+  animation: toast-out 160ms ease-in forwards;
+}
+
+.toast__icon {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  flex: none;
+  color: var(--accent);
+}
+
+.toast__icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.toast--error .toast__icon {
+  color: var(--danger);
+}
+
+.toast--warning .toast__icon {
+  color: var(--warning);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+
+@keyframes toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+
+/* ---------- Barra de navegação inferior (celular) ----------
+   O polegar alcança o rodapé, não o topo. As cinco telas mais
+   usadas ficam aqui; o resto continua na gaveta lateral.
+*/
+
+.tabbar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 40;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: stretch;
+  height: calc(var(--tabbar-h) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--topbar-bg);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+}
+
+.tabbar__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-height: 44px;
+  padding: var(--sp-1);
+  font-size: 0.625rem;
+  color: var(--text-3);
+  text-decoration: none;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.tabbar__link svg {
+  width: 20px;
+  height: 20px;
+}
+
+.tabbar__link[aria-current="page"] {
+  color: var(--accent);
+}
+
+.tabbar__link--action {
+  color: var(--accent-ink);
+}
+
+.tabbar__link--action span:first-child {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 30px;
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-radius: var(--r-sm);
+}
+
+.tabbar__link--action {
+  color: var(--text-2);
+}

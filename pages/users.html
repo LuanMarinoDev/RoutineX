@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0B0D0C" />
+    <meta name="description" content="Contas e níveis de acesso." />
+    <title>Usuários · RoutineX</title>
+
+    <!-- Ícone da aba do navegador. -->
+    <link rel="icon" type="image/png" href="../assets/images/LogoNav.png" />
+    <link rel="apple-touch-icon" href="../assets/images/LogoNav.png" />
+
+    <!-- Aplica o tema salvo antes da primeira pintura (evita o flash claro). -->
+    <script>
+      try {
+        var read = function (key) {
+          return JSON.parse(
+            localStorage.getItem("routinex:v2:" + key) ||
+              localStorage.getItem("nexora:v2:" + key) ||
+              "null"
+          );
+        };
+        var session = read("session");
+        var slot = session && session.userId ? session.userId : "guest";
+        var saved = read("u:" + slot);
+        var theme = (saved && saved.settings && saved.settings.theme) || "dark";
+        if (theme === "system") {
+          theme = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      } catch (error) {
+        /* localStorage bloqueado: segue com o tema padrão do HTML. */
+      }
+    </script>
+
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <link rel="stylesheet" href="../css/settings.css" />
+    <link rel="stylesheet" href="../css/account.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+  </head>
+
+  <body data-page="users" data-root="../">
+    <a class="skip-link" href="#main">Pular para o conteúdo</a>
+
+    <div class="app">
+      <div id="shell-sidebar"></div>
+
+      <div class="app__main">
+        <div id="shell-topbar"></div>
+
+        <main id="main" class="content">
+          <div class="page-head">
+            <div>
+              <p class="eyebrow">Somente administradores</p>
+              <h1 class="page-head__title">Usuários</h1>
+            </div>
+
+            <div class="search search--inline">
+              <input
+                class="input"
+                id="users-search"
+                type="search"
+                placeholder="Buscar por nome, e-mail ou CPF"
+                aria-label="Buscar usuários"
+              />
+            </div>
+          </div>
+
+          <!-- Contagem por nível: js/pages/users.js -->
+          <section class="card" id="users-summary" aria-label="Resumo das contas"></section>
+
+          <section id="users-list" aria-label="Lista de contas">
+            <div class="card">
+              <div class="empty">
+                <p class="empty__title">Carregando as contas…</p>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div id="toast-region" class="toasts" role="status" aria-live="polite"></div>
+
+    <script type="module" src="../js/app.js"></script>
+  </body>
+</html>

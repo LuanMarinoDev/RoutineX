@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#07070A" />
+    <meta name="description" content="Entre no RoutineX e organize sua rotina." />
+    <title>Entrar · RoutineX</title>
+
+    <!-- Ícone da aba do navegador. -->
+    <link rel="icon" type="image/png" href="../assets/images/LogoNav.png" />
+    <link rel="apple-touch-icon" href="../assets/images/LogoNav.png" />
+
+    <!-- Aplica o tema salvo antes da primeira pintura (evita o flash claro). -->
+    <script>
+      try {
+        var read = function (key) {
+          return JSON.parse(
+            localStorage.getItem("routinex:v2:" + key) ||
+              localStorage.getItem("nexora:v2:" + key) ||
+              "null"
+          );
+        };
+        var session = read("session");
+        var slot = session && session.userId ? session.userId : "guest";
+        var saved = read("u:" + slot);
+        var theme = (saved && saved.settings && saved.settings.theme) || "dark";
+        if (theme === "system") {
+          theme = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        }
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      } catch (error) {
+        /* localStorage bloqueado: segue com o tema padrão do HTML. */
+      }
+    </script>
+
+    <link rel="stylesheet" href="../css/global.css" />
+    <link rel="stylesheet" href="../css/layout.css" />
+    <link rel="stylesheet" href="../css/components.css" />
+    <link rel="stylesheet" href="../css/login.css" />
+    <link rel="stylesheet" href="../css/responsive.css" />
+  </head>
+
+  <body data-page="login" data-root="../">
+    <!-- A arte de fundo fica em .auth, no login.css
+         (../assets/images/Fundo.png). -->
+    <main class="auth">
+      <section class="auth__card" aria-label="Acesso ao RoutineX">
+        <!-- Metade esquerda: só a marca, centralizada. -->
+        <aside class="auth__side">
+          <div class="auth__brand">
+            <!-- Substituído pela marca (com o slot de imagem) em js/pages/login.js -->
+            <span class="brand__mark" id="auth-logo"></span>
+          </div>
+        </aside>
+
+        <!-- Metade direita: entrar ou criar conta. -->
+        <div class="auth__panel">
+          <div id="auth-tabs"></div>
+
+          <!-- Formulário montado por js/pages/login.js -->
+          <div id="auth-root">
+            <p class="auth__loading">Carregando…</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div
+      id="toast-region"
+      class="toasts"
+      role="status"
+      aria-live="polite"
+    ></div>
+
+    <script type="module" src="../js/app.js"></script>
+  </body>
+</html>

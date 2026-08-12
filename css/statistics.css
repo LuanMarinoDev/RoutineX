@@ -1,0 +1,139 @@
+/* =========================================================
+   RoutineX — statistics.css
+   ========================================================= */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-5);
+}
+
+.stat-card {
+  padding: var(--sp-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+.stat-card__value {
+  margin-top: var(--sp-3);
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.stat-card--accent .stat-card__value {
+  color: var(--accent);
+}
+
+/* Gráfico semanal em CSS puro */
+.bars {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: end;
+  gap: var(--sp-3);
+  height: 200px;
+  padding-top: var(--sp-4);
+}
+
+.bars__col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.bars__bar {
+  width: 100%;
+  max-width: 40px;
+  min-height: 4px;
+  border-radius: var(--r-xs) var(--r-xs) 2px 2px;
+  background: var(--surface-3);
+  transition: height var(--t);
+}
+
+.bars__col[data-active="true"] .bars__bar {
+  background: var(--accent);
+}
+
+.bars__label {
+  font-size: 0.6875rem;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ---------- Barras: planejado x concluído ---------- */
+
+.bars__bar {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+}
+
+.bars__done {
+  position: absolute;
+  inset: auto 0 0 0;
+  background: var(--accent);
+  border-radius: inherit;
+  transition: height var(--t);
+}
+
+.bars__col[data-today="true"] .bars__label {
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.stat-card__hint {
+  margin-top: var(--sp-1);
+  font-size: 0.75rem;
+  color: var(--text-3);
+}
+
+.chart-legend {
+  display: flex;
+  gap: var(--sp-4);
+  justify-content: center;
+  padding-top: var(--sp-4);
+  font-size: 0.75rem;
+  color: var(--text-2);
+}
+
+.chart-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.chart-legend__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--r-full);
+}
+
+/* ---------- Divisão por categoria ---------- */
+
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.breakdown__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+
+.breakdown__value {
+  font-size: 0.75rem;
+  color: var(--text-2);
+  white-space: nowrap;
+}

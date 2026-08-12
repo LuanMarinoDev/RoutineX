@@ -1,0 +1,394 @@
+/* =========================================================
+   RoutineX — responsive.css
+   Carregar SEMPRE por último.
+
+   O projeto é mobile first: o CSS base já é a versão de
+   celular. Aqui só entram os ganhos de tela grande, sempre
+   com min-width — nada de desfazer estilo com max-width.
+
+   Escadinha: 600 (telefone grande) · 900 (tablet/sidebar fixa)
+   · 1024 (duas colunas) · 1180 (folga total)
+   ========================================================= */
+
+/* ---------- Base: telefone ---------- */
+
+/* Alvos de toque: nada abaixo de 44px onde o dedo precisa acertar. */
+.btn,
+.chip,
+.icon-btn,
+.segmented button,
+.nav__link {
+  min-height: 44px;
+}
+
+/* O quadradinho de concluir continua com 18px, mas o dedo acerta 44px. */
+.check::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
+
+.btn--sm {
+  min-height: 38px;
+}
+
+/* Menus e listas de ação ficam confortáveis no toque */
+.menu__item {
+  min-height: 44px;
+}
+
+/* O modal vira folha deslizante, presa ao rodapé */
+.modal {
+  align-items: flex-end;
+  padding: 0;
+}
+
+.modal__panel {
+  width: 100%;
+  max-width: none;
+  max-height: 92dvh;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.modal__foot {
+  position: sticky;
+  bottom: 0;
+  flex-wrap: wrap;
+  background: var(--surface);
+}
+
+.modal__foot .btn {
+  flex: 1;
+  justify-content: center;
+}
+
+/* Formulários: um campo por linha no celular */
+.form__row {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.dash {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.stat-row {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.day-summary {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.hero {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-4);
+}
+
+.clock__label {
+  text-align: left;
+}
+
+.toasts {
+  right: var(--sp-4);
+  bottom: calc(var(--tabbar-h) + var(--sp-4) + env(safe-area-inset-bottom));
+  left: var(--sp-4);
+  width: auto;
+}
+
+.topbar__title {
+  font-size: 1rem;
+}
+
+/* O rótulo do botão principal sai; o ícone basta */
+.topbar .btn--primary .btn__text {
+  display: none;
+}
+
+.topbar .btn--primary {
+  width: 40px;
+  padding: 0;
+  justify-content: center;
+}
+
+.timeline__row {
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: var(--sp-3);
+}
+
+.now-line__label {
+  width: 44px;
+}
+
+.routine-list {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.focus-card {
+  padding: var(--sp-5);
+}
+
+.focus-card__time {
+  font-size: 1.875rem;
+}
+
+/* Calendário mensal compacto: marcadores em vez de textos */
+.cal-day {
+  min-height: 64px;
+  padding: var(--sp-1);
+}
+
+.cal-chip {
+  height: 4px;
+  padding: 0;
+  border-radius: var(--r-full);
+  background: var(--tl-color, var(--accent));
+  color: transparent;
+}
+
+.cal-chip .dot,
+.cal-more {
+  display: none;
+}
+
+.cal-toolbar {
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.cal-title {
+  min-width: 0;
+  order: -1;
+  width: 100%;
+}
+
+.segmented {
+  width: 100%;
+}
+
+.segmented button {
+  flex: 1;
+  padding: 0 var(--sp-2);
+}
+
+/* Rolagem lateral só onde é inevitável (grade semanal) */
+.wk__body {
+  overflow-x: auto;
+}
+
+/* ---------- 600px: telefone grande ---------- */
+
+@media (min-width: 600px) {
+  .content {
+    padding: var(--sp-6) var(--sp-5)
+      calc(var(--sp-9) + var(--tabbar-h) + env(safe-area-inset-bottom));
+  }
+
+  .day-summary {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  .form__row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .page-head {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .modal__foot .btn {
+    flex: none;
+  }
+}
+
+/* ---------- 900px: sidebar fixa, sem barra inferior ---------- */
+
+@media (min-width: 900px) {
+  .app {
+    grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  }
+
+  .sidebar {
+    position: sticky;
+    width: auto;
+    height: 100dvh;
+    padding: var(--sp-5) var(--sp-4);
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Com a sidebar à vista, a gaveta e a barra inferior somem */
+  .tabbar,
+  .scrim,
+  .topbar__burger,
+  .topbar__search-btn {
+    display: none;
+  }
+
+  .search {
+    display: block;
+  }
+
+  .topbar {
+    gap: var(--sp-3);
+    padding: 0 var(--sp-6);
+  }
+
+  .topbar .btn--primary {
+    width: auto;
+    padding: 0 var(--sp-4);
+  }
+
+  .topbar .btn--primary .btn__text {
+    display: inline;
+  }
+
+  .content {
+    padding: var(--sp-6) var(--sp-5) var(--sp-9);
+  }
+
+  .toasts {
+    right: var(--sp-6);
+    bottom: var(--sp-6);
+    left: auto;
+    width: min(380px, calc(100vw - var(--sp-8)));
+  }
+
+  /* O modal volta a ser uma janela centralizada */
+  .modal {
+    align-items: center;
+    padding: var(--sp-5);
+  }
+
+  .modal__panel {
+    width: min(560px, 100%);
+    max-width: 560px;
+    max-height: 86dvh;
+    border-radius: var(--r-lg);
+  }
+
+  .modal__panel--wide {
+    max-width: 760px;
+  }
+
+  .timeline__row {
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: var(--sp-4);
+  }
+
+  .now-line__label {
+    width: 56px;
+  }
+
+  .hero {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .clock__label {
+    text-align: right;
+  }
+
+  .focus-card {
+    padding: var(--sp-6);
+  }
+
+  .focus-card__time {
+    font-size: 2.25rem;
+  }
+
+  .cal-day {
+    min-height: 84px;
+    padding: var(--sp-2);
+  }
+
+  .cal-chip {
+    height: auto;
+    padding: 2px var(--sp-2);
+    border-radius: var(--r-xs);
+    background: var(--surface-2);
+    color: var(--text);
+  }
+
+  .cal-more {
+    display: block;
+  }
+
+  .cal-toolbar {
+    flex-wrap: nowrap;
+  }
+
+  .cal-title {
+    order: 0;
+    width: auto;
+  }
+
+  .segmented {
+    width: auto;
+  }
+
+  .routine-list {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+}
+
+/* ---------- 1024px: duas colunas ---------- */
+
+@media (min-width: 1024px) {
+  .dash {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  }
+}
+
+/* ---------- 1180px: folga total ---------- */
+
+@media (min-width: 1180px) {
+  .content {
+    padding: var(--sp-7) var(--sp-6) var(--sp-9);
+  }
+
+  .dash {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
+}
+
+/* ---------- Preferências do sistema ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Impressão ---------- */
+
+@media print {
+  .sidebar,
+  .topbar,
+  .tabbar,
+  .toasts,
+  .scrim {
+    display: none !important;
+  }
+
+  .app {
+    grid-template-columns: 1fr;
+  }
+
+  .content {
+    padding: 0;
+  }
+}

@@ -1,0 +1,64 @@
+/* =========================================================
+   RoutineX — settings.css
+   Blocos de preferência e o cartão da conta. Mobile first.
+   ========================================================= */
+
+.setting {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.setting__text {
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+/* Cartão da conta no topo das configurações */
+.account-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  flex-wrap: wrap;
+}
+
+.account-row__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.account-row__name {
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.account-row__mail {
+  font-size: 0.8125rem;
+  color: var(--text-2);
+  word-break: break-all;
+}
+
+/* Segmentado que ocupa a linha inteira no celular */
+.segmented--wide {
+  width: 100%;
+}
+
+.segmented--wide button {
+  flex: 1;
+  min-height: 44px;
+}
+
+.swatches--preview {
+  gap: var(--sp-2);
+}
+
+.swatches--preview .tag {
+  cursor: default;
+}
+
+@media (min-width: 900px) {
+  .segmented--wide {
+    width: auto;
+  }
+}

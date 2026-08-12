@@ -1,0 +1,93 @@
+/* =========================================================
+   RoutineX — routines.css
+   ========================================================= */
+
+.routine-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--sp-4);
+}
+
+.routine {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+.routine[data-paused="true"] {
+  opacity: 0.6;
+}
+
+.routine__title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.routine__time {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--text-2);
+}
+
+.weekdays {
+  display: flex;
+  gap: 4px;
+}
+
+.weekdays span {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r-xs);
+  background: var(--surface-2);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-3);
+}
+
+.weekdays span[data-on="true"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.routine__actions {
+  display: flex;
+  gap: var(--sp-2);
+  margin-top: auto;
+  padding-top: var(--sp-2);
+}
+
+/* Cabeçalho do cartão e observações — a lista ganhou conteúdo real. */
+.routine__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.routine__meta {
+  font-size: 0.8125rem;
+}
+
+.routine__notes {
+  padding-top: var(--sp-2);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--text-2);
+  white-space: pre-wrap;
+}
+
+.routine[data-paused="true"] {
+  opacity: 0.62;
+}
+
+.routine[data-paused="true"] .routine__title {
+  text-decoration: line-through;
+  text-decoration-color: var(--text-3);
+}

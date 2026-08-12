@@ -1,0 +1,193 @@
+/* =========================================================
+   RoutineX — account.css
+   Perfil e gestão de usuários. Mobile first: as linhas
+   empilham no celular e viram colunas a partir de 720px.
+   ========================================================= */
+
+/* ---------- Perfil ---------- */
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.profile__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+}
+
+.profile__name {
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.profile__mail {
+  margin-bottom: var(--sp-2);
+  font-size: 0.875rem;
+  color: var(--text-2);
+  word-break: break-all;
+}
+
+/* Lista de dados cadastrais */
+.data-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-1);
+}
+
+.data-list dt {
+  margin-top: var(--sp-3);
+}
+
+.data-list dd {
+  font-size: 0.9375rem;
+  word-break: break-word;
+}
+
+/* ---------- Níveis de acesso ---------- */
+
+.role-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  list-style: none;
+}
+
+.role-list__item {
+  display: flex;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+.role-list__item[data-current="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+}
+
+.role-list__mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: var(--text-3);
+}
+
+.role-list__item[data-current="true"] .role-list__mark {
+  color: var(--accent);
+}
+
+.role-list__label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.role-list__text {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+
+/* Cartão de zona perigosa */
+.card--danger {
+  border-color: rgba(255, 95, 87, 0.28);
+}
+
+/* ---------- Lista de usuários ---------- */
+
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.user-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "avatar body"
+    "side   side"
+    "actions actions";
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+.user-row > .avatar {
+  grid-area: avatar;
+}
+
+.user-row__body {
+  grid-area: body;
+  min-width: 0;
+}
+
+.user-row__side {
+  grid-area: side;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.user-row__actions {
+  grid-area: actions;
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.user-row__name {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.user-row__mail {
+  font-size: 0.8125rem;
+  color: var(--text-2);
+  word-break: break-all;
+}
+
+.user-row__meta {
+  font-size: 0.75rem;
+}
+
+.user-row__since {
+  font-size: 0.75rem;
+  color: var(--text-3);
+}
+
+.user-row[data-role="admin"] {
+  border-color: var(--accent-line);
+}
+
+.search--inline {
+  width: 100%;
+}
+
+@media (min-width: 720px) {
+  .data-list {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-2) var(--sp-5);
+  }
+
+  .user-row {
+    grid-template-columns: auto 1fr auto auto;
+    grid-template-areas: "avatar body side actions";
+    align-items: center;
+    gap: var(--sp-4);
+  }
+
+  .search--inline {
+    width: 280px;
+  }
+}

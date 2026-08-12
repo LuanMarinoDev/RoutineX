@@ -1,0 +1,322 @@
+/* =========================================================
+   RoutineX — calendar.css
+   Estrutura visual base do calendário (mês / semana / dia).
+   A lógica de renderização chega na ETAPA 4.
+   ========================================================= */
+
+.cal-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-5);
+}
+
+.cal-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+.cal-title {
+  min-width: 190px;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.cal-title span {
+  color: var(--text-2);
+  font-weight: 400;
+}
+
+/* Grade mensal */
+
+.cal-grid {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.cal-grid__head,
+.cal-grid__body {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.cal-grid__head {
+  border-bottom: 1px solid var(--border);
+}
+
+.cal-grid__head span {
+  padding: var(--sp-3) var(--sp-3);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.cal-day {
+  min-height: 116px;
+  padding: var(--sp-2);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  transition: background var(--t-fast);
+}
+
+.cal-day:hover {
+  background: var(--surface-2);
+}
+
+.cal-day:nth-child(7n) {
+  border-right: 0;
+}
+
+.cal-day[data-outside="true"] {
+  background: var(--surface-sunken);
+}
+
+.cal-day[data-outside="true"] .cal-day__num {
+  color: var(--text-3);
+}
+
+.cal-day__num {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--text-2);
+}
+
+.cal-day[data-today="true"] .cal-day__num {
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.cal-day[data-selected="true"] {
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+}
+
+.cal-day__events {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: var(--sp-2);
+}
+
+.cal-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+  border-radius: var(--r-xs);
+  background: var(--surface-2);
+  font-size: 0.75rem;
+  color: var(--text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cal-more {
+  font-size: 0.6875rem;
+  color: var(--text-3);
+}
+
+/* Botão "+" que aparece ao passar o mouse na célula do mês */
+
+.cal-day__add {
+  float: right;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--r-xs);
+  color: var(--text-3);
+  opacity: 0;
+  transition: opacity var(--t-fast), background var(--t-fast);
+}
+
+.cal-day:hover .cal-day__add,
+.cal-day__add:focus-visible {
+  opacity: 1;
+}
+
+.cal-day__add:hover {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.cal-day__add svg {
+  width: 14px;
+  height: 14px;
+  margin: 3px auto;
+}
+
+.cal-chip {
+  border-left: 2px solid var(--tl-color, var(--accent));
+}
+
+.cal-chip[data-done="true"] {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+/* ---------- Grade semanal / diária ---------- */
+
+.wk {
+  --hour-h: 52px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.wk__head,
+.wk__body {
+  display: grid;
+  grid-template-columns: 56px repeat(var(--cols, 7), minmax(0, 1fr));
+}
+
+.wk__head {
+  position: sticky;
+  top: var(--topbar-h);
+  z-index: 5;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.wk__day {
+  padding: var(--sp-3) var(--sp-2);
+  border-left: 1px solid var(--border);
+  text-align: center;
+}
+
+.wk__day-name {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.wk__day-num {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-top: 2px;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+
+.wk__day[data-today="true"] .wk__day-num {
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 600;
+}
+
+.wk__body {
+  position: relative;
+  max-height: 62vh;
+  overflow-y: auto;
+}
+
+.wk__hours {
+  border-right: 1px solid var(--border);
+}
+
+.wk__hour {
+  height: var(--hour-h);
+  padding-right: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--text-3);
+  text-align: right;
+  transform: translateY(-6px);
+}
+
+.wk__col {
+  position: relative;
+  border-left: 1px solid var(--border);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--border) 0 1px,
+    transparent 1px var(--hour-h)
+  );
+  cursor: copy;
+}
+
+.wk__col[data-today="true"] {
+  background-color: var(--accent-soft);
+}
+
+.wk-event {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  display: block;
+  padding: 4px 7px;
+  border-radius: var(--r-xs);
+  border-left: 2px solid var(--tl-color, var(--accent));
+  background: var(--surface-3);
+  color: var(--text);
+  font-size: 0.75rem;
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+  transition: filter var(--t-fast);
+}
+
+.wk-event:hover {
+  filter: brightness(1.15);
+}
+
+.wk-event[data-done="true"] {
+  opacity: 0.55;
+}
+
+.wk-event[data-done="true"] .wk-event__title {
+  text-decoration: line-through;
+}
+
+.wk-event__title {
+  font-weight: 550;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wk-event__time {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  color: var(--text-2);
+}
+
+.wk__now {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  height: 1px;
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.wk__now::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translate(-50%, -50%);
+}

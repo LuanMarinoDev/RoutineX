@@ -1,0 +1,202 @@
+/* =========================================================
+   RoutineX — dashboard.css
+   ========================================================= */
+
+/* ---------- Cabeçalho: saudação + relógio ---------- */
+
+.hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-6);
+  padding-bottom: var(--sp-6);
+  margin-bottom: var(--sp-6);
+  border-bottom: 1px solid var(--border);
+}
+
+.hero__greeting {
+  font-size: clamp(1.5rem, 1.1rem + 1.4vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.hero__date {
+  margin-top: var(--sp-2);
+  font-size: 0.9375rem;
+  color: var(--text-2);
+}
+
+.clock {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.clock__sec {
+  font-size: 0.5em;
+  color: var(--accent);
+}
+
+.clock__label {
+  display: block;
+  margin-top: var(--sp-2);
+  text-align: right;
+}
+
+/* ---------- Grade do dashboard ---------- */
+
+.dash {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: var(--sp-5);
+  align-items: start;
+}
+
+.dash__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  min-width: 0;
+}
+
+/* ---------- Card em foco (agora / próxima) ---------- */
+
+.focus-card {
+  position: relative;
+  overflow: hidden;
+  padding: var(--sp-6);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+.focus-card[data-state="now"] {
+  border-color: var(--accent-line);
+  background: linear-gradient(
+    180deg,
+    var(--accent-soft) 0%,
+    rgba(var(--accent-rgb), 0) 55%
+  );
+}
+
+.focus-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+
+.focus-card__time {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 2.25rem;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.focus-card__title {
+  margin-top: var(--sp-3);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.focus-card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
+  font-size: 0.875rem;
+  color: var(--text-2);
+}
+
+.focus-card__countdown {
+  color: var(--accent);
+  font-weight: 550;
+}
+
+.focus-card__progress {
+  margin-top: var(--sp-5);
+}
+
+.focus-card__progress .progress {
+  margin-bottom: var(--sp-2);
+}
+
+.focus-card__progress-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-2);
+}
+
+.live-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.live-dot::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 var(--accent-line);
+  }
+  50% {
+    opacity: 0.6;
+    box-shadow: 0 0 0 5px rgba(var(--accent-rgb), 0);
+  }
+}
+
+/* ---------- Progresso do dia ---------- */
+
+.day-progress__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+
+.day-progress__pct {
+  font-family: var(--font-mono);
+  font-size: 1.75rem;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+.day-progress__caption {
+  margin-top: var(--sp-3);
+  font-size: 0.8125rem;
+  color: var(--text-2);
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+}
+
+.day-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
