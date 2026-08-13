@@ -4,10 +4,10 @@
    Marcação esperada (opcional em cada página):
      [data-clock]  → HH:MM + <span class="clock__sec">:SS</span>
      [data-date]   → "Segunda-feira, 10 de Agosto de 2026"
-     [data-greeting] → "Bom dia, Luan"
+     [data-greeting] → "Bom dia, " + <span class="hero__name">Luan</span>
    ========================================================= */
 
-import { $, every, pad2, formatDateLong, greetingFor, todayISO } from "../utils.js";
+import { $, el, every, pad2, formatDateLong, greetingFor, todayISO } from "../utils.js";
 import { store } from "../storage.js";
 import { accounts } from "../auth/accounts.js";
 
@@ -46,8 +46,15 @@ function paint() {
       accounts.currentUser()?.name?.split(" ")[0] ||
       "";
     const text = `${greetingFor(now.getHours())}${name ? `, ${name}` : ""}`;
+
     if (text !== lastGreeting) {
-      greetingNode.textContent = text;
+      // O nome ganha destaque próprio, então a saudação é montada em
+      // dois pedaços — nunca por innerHTML, que aceitaria um nome com
+      // "<" dentro como marcação.
+      greetingNode.replaceChildren(
+        document.createTextNode(name ? `${greetingFor(now.getHours())}, ` : text),
+        ...(name ? [el("span", { class: "hero__name", text: name })] : [])
+      );
       lastGreeting = text;
     }
   }

@@ -213,6 +213,66 @@ export function selectField({ name, label, value, options, hint }) {
   return base(name, select, wrap(label, select, hint));
 }
 
+/* ---------- Categoria (lista suspensa) ----------
+   A versão em pastilhas ocupa uma faixa inteira do formulário. Quando
+   a categoria precisa dividir a linha com outro campo, o select cabe
+   na metade — e o ponto colorido ao lado guarda a leitura da cor,
+   que o <option> nativo não sabe pintar.
+*/
+
+export function categorySelectField({
+  name = "categoryId",
+  label = "Categoria",
+  value,
+}) {
+  const categories = store.getCategories();
+
+  const select = el(
+    "select",
+    { class: "select", id: fieldId(name), name },
+    categories.map((category) =>
+      el("option", {
+        value: category.id,
+        text: category.name,
+        selected: category.id === (value || categories[0]?.id),
+      })
+    )
+  );
+
+  const dot = el("span", { class: "select-dot", "aria-hidden": "true" });
+
+  const paintDot = () => {
+    const color = categories.find((c) => c.id === select.value)?.color;
+    dot.style.setProperty("--sw-color", color || "var(--accent)");
+  };
+
+  paintDot();
+  select.addEventListener("change", paintDot);
+
+  const control = el("div", { class: "select-wrap" }, [dot, select]);
+
+  const field = el("div", { class: "field" }, [
+    el("label", { for: select.id, text: label }),
+    control,
+  ]);
+
+  return {
+    name,
+    node: field,
+    input: select,
+    get: () => select.value,
+    set: (id) => {
+      select.value = id;
+      paintDot();
+    },
+    focus: () => select.focus(),
+    invalid(state) {
+      field.classList.toggle("field--invalid", Boolean(state));
+      select.setAttribute("aria-invalid", state ? "true" : "false");
+    },
+  };
+}
+
 /* ---------- Categoria (pastilhas coloridas) ---------- */
 
 export function categoryField({ name = "categoryId", label = "Categoria", value }) {

@@ -1,7 +1,8 @@
 /* =========================================================
    RoutineX — pages/dashboard.js
-   A tela de abertura: o que está acontecendo agora, a agenda
-   de hoje, o progresso do dia e as tarefas em aberto.
+   A tela única de abertura: o resumo de hoje no topo, o que vem
+   a seguir, o progresso do dia em rosca, o bloco de anotações,
+   a agenda e as tarefas em aberto.
    ========================================================= */
 
 import {
@@ -29,6 +30,7 @@ import {
   emptyState,
   categoryOf,
   checkButton,
+  donutChart,
 } from "../ui/components.js";
 import {
   openActivityForm,
@@ -36,14 +38,19 @@ import {
   deleteActivityFlow,
 } from "../features/activities.js";
 import { openTaskForm, sortTasks } from "../features/tasks.js";
+import { canWrite } from "../ui/guard.js";
 import { toast } from "../ui/toast.js";
 
 const TASK_LIMIT = 5;
+
+/** Espera de digitação antes de gravar as anotações. */
+const NOTES_DEBOUNCE = 600;
 
 export function init() {
   const focusCard = $("#focus-card");
   const timeline = $("#day-timeline");
   const tasksBox = $("#dash-tasks");
+  const donutBox = $("#day-donut");
 
   // Refs do card em foco, atualizados a cada segundo sem redesenhar tudo.
   let live = null;
@@ -58,7 +65,16 @@ export function init() {
     onDelete: (occurrence) => deleteActivityFlow(occurrence),
   };
 
-  /* ---------- Card em foco ---------- */
+  /* ---------- Resumo de hoje ---------- */
+
+  function paintSummary(stats) {
+    $('[data-stat="total"]').textContent = String(stats.total);
+    $('[data-stat="done"]').textContent = `${stats.done}/${stats.total}`;
+    $('[data-stat="planned"]').textContent = formatDuration(stats.plannedMinutes);
+    $('[data-stat="rate"]').textContent = `${stats.rate}%`;
+  }
+
+  /* ---------- Card "A seguir" ---------- */
 
   function paintFocus() {
     const { current, next } = focusNow();
@@ -71,7 +87,7 @@ export function init() {
       render(
         focusCard,
         el("div", { class: "focus-card__head" }, [
-          el("p", { class: "eyebrow", text: "Em foco" }),
+          el("p", { class: "eyebrow", text: "A seguir" }),
         ]),
         emptyState({
           icon: "clock",
@@ -104,7 +120,7 @@ export function init() {
       }),
     ]);
 
-    const body = el("div", {}, [
+    const body = el("div", { class: "focus-card__body" }, [
       el("p", { class: "focus-card__time num", text: target.start }),
       el("h2", { class: "focus-card__title", text: target.title }),
       el("p", { class: "focus-card__meta" }, [
@@ -132,7 +148,7 @@ export function init() {
       el("div", { class: "focus-card__progress-meta" }, [elapsed, remaining]),
     ]);
 
-    const actions = el("div", { class: "inline", style: "margin-top:20px" }, [
+    const actions = el("div", { class: "focus-card__actions" }, [
       el("button", {
         class: "btn btn--primary",
         type: "button",
@@ -180,9 +196,8 @@ export function init() {
 
   /* ---------- Agenda de hoje ---------- */
 
-  function paintTimeline() {
+  function paintTimeline(occurrences) {
     const today = todayISO();
-    const { today: occurrences } = focusNow();
 
     if (!occurrences.length) {
       render(
@@ -202,15 +217,19 @@ export function init() {
 
   /* ---------- Progresso do dia ---------- */
 
-  function paintProgress() {
-    const stats = dayStats(todayISO());
-    const pct = stats.rate;
-
-    $("[data-progress-pct]").textContent = `${pct}%`;
-
-    const bar = $("[data-progress-bar]");
-    bar.style.width = `${pct}%`;
-    bar.closest(".progress")?.setAttribute("aria-valuenow", String(pct));
+  function paintProgress(stats) {
+    render(
+      donutBox,
+      donutChart({
+        percent: stats.rate,
+        label: "Atividades concluídas hoje",
+        caption: stats.total ? `${stats.done} de ${stats.total}` : "sem atividades",
+        legend: [
+          { label: "Concluídas", value: stats.done, tone: "fill" },
+          { label: "Em aberto", value: stats.pending, tone: "track" },
+        ],
+      })
+    );
 
     $("[data-progress-caption]").textContent = stats.total
       ? `${stats.done} de ${stats.total} ${
@@ -218,7 +237,7 @@ export function init() {
         }`
       : "Nenhuma atividade programada para hoje";
 
-    $('[data-stat="planned"]').textContent = formatDuration(stats.plannedMinutes);
+    $('[data-stat="pending"]').textContent = String(stats.pending);
 
     const streak = currentStreak();
     $('[data-stat="streak"]').textContent = `${streak} ${
@@ -289,27 +308,76 @@ export function init() {
     render(tasksBox, rows);
   }
 
+  /* ---------- Anotações ----------
+     Um bloco de notas só é útil se não pedir para salvar: o texto
+     vai para o storage sozinho, um instante depois da digitação parar.
+  */
+
+  function initNotes() {
+    const field = $("[data-notes]");
+    const status = $("[data-notes-status]");
+    if (!field) return;
+
+    field.value = store.getSettings().dashboardNotes || "";
+
+    if (!canWrite()) {
+      field.readOnly = true;
+      field.title = "Seu nível de acesso permite apenas consultar";
+      status.textContent = "Somente leitura";
+      return;
+    }
+
+    let timer = null;
+
+    field.addEventListener("input", () => {
+      status.textContent = "Salvando…";
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        store.updateSettings({ dashboardNotes: field.value });
+        status.textContent = "Salvo";
+      }, NOTES_DEBOUNCE);
+    });
+
+    // Sair da página no meio da digitação não pode custar o que foi escrito.
+    window.addEventListener("beforeunload", () => {
+      if (!timer) return;
+      clearTimeout(timer);
+      store.updateSettings({ dashboardNotes: field.value });
+    });
+  }
+
   /* ---------- Orquestração ---------- */
 
   function paintAll() {
+    const { today: occurrences } = focusNow();
+    const stats = dayStats(todayISO(), occurrences);
+
+    paintSummary(stats);
     paintFocus();
-    paintTimeline();
-    paintProgress();
+    paintTimeline(occurrences);
+    paintProgress(stats);
     paintTasks();
   }
 
+  initNotes();
   paintAll();
-  store.on("change", paintAll);
+
+  // O bloco de notas grava em "settings" a cada pausa na digitação;
+  // redesenhar a tela inteira por causa disso seria trabalho à toa.
+  store.on("change", (detail) => {
+    if (detail?.collection === "settings") return;
+    paintAll();
+  });
 
   // O relógio do card em foco anda sozinho; a cada minuto conferimos
   // se a atividade em foco mudou.
   every(1000, tick);
   every(30_000, () => {
-    const { current, next } = focusNow();
+    const { current, next, today: occurrences } = focusNow();
     const id = (current || next)?.id ?? null;
     if (id !== (live?.target.id ?? null)) {
       paintFocus();
-      paintTimeline();
+      paintTimeline(occurrences);
     }
   });
 }

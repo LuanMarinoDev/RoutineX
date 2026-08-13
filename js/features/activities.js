@@ -5,7 +5,15 @@
    excluir um dia isolado não desfaz a série inteira.
    ========================================================= */
 
-import { el, todayISO, timeToMinutes, minutesToTime, formatDateLong, formatDuration, overlaps } from "../utils.js";
+import {
+  el,
+  todayISO,
+  timeToMinutes,
+  minutesToTime,
+  formatDateLong,
+  formatDuration,
+  overlaps,
+} from "../utils.js";
 import { store } from "../storage.js";
 import { openModal, confirmDialog, chooseDialog } from "../ui/modal.js";
 import { toast } from "../ui/toast.js";
@@ -16,7 +24,7 @@ import {
   textareaField,
   dateField,
   timeField,
-  categoryField,
+  categorySelectField,
 } from "../ui/fields.js";
 import { categoryOf } from "../ui/components.js";
 import {
@@ -61,8 +69,15 @@ export function openActivityForm({ occurrence = null, date, start } = {}) {
       placeholder: "Ex.: Bloco de foco — relatório",
       required: true,
     }),
-    categoryField({ value: values.categoryId }),
-    dateField({ name: "date", label: "Data", value: values.date, required: true }),
+    [
+      dateField({
+        name: "date",
+        label: "Data",
+        value: values.date,
+        required: true,
+      }),
+      categorySelectField({ value: values.categoryId }),
+    ],
     [
       timeField({ name: "start", label: "Começa", value: values.start }),
       timeField({ name: "end", label: "Termina", value: values.end }),
@@ -93,7 +108,7 @@ export function openActivityForm({ occurrence = null, date, start } = {}) {
         "Esta atividade vem da rotina “",
         values.title,
         "”. As mudanças valem só para este dia — para alterar todos os dias, edite a rotina.",
-      ])
+      ]),
     );
   }
 
@@ -101,8 +116,9 @@ export function openActivityForm({ occurrence = null, date, start } = {}) {
 
   const modal = openModal({
     title: editing ? "Editar atividade" : "Nova atividade",
-    subtitle: editing ? formatDateLong(values.date) : "Reserve um horário no seu dia",
-    icon: "clock",
+    subtitle: editing ? formatDateLong(values.date) : "",
+    // Sem ícone: o título sozinho, centrado, abre o cartão.
+    centered: true,
     tone: "activity",
     body: form.node,
     footerStart: editing
@@ -187,7 +203,11 @@ export function openActivityForm({ occurrence = null, date, start } = {}) {
 export function openActivityDetail(occurrence) {
   const category = categoryOf(occurrence.categoryId);
   const status = statusOf(occurrence);
-  const STATUS_LABEL = { past: "Já passou", now: "Acontecendo agora", future: "Ainda vai acontecer" };
+  const STATUS_LABEL = {
+    past: "Já passou",
+    now: "Acontecendo agora",
+    future: "Ainda vai acontecer",
+  };
 
   const body = el("div", {}, [
     el("div", { class: "inline" }, [
@@ -207,7 +227,11 @@ export function openActivityDetail(occurrence) {
       }),
     ]),
 
-    el("p", { class: "detail__title", style: "margin-top:12px", text: occurrence.title }),
+    el("p", {
+      class: "detail__title",
+      style: "margin-top:12px",
+      text: occurrence.title,
+    }),
 
     el("div", { class: "detail__grid" }, [
       detailItem("Data", formatDateLong(occurrence.date)),
@@ -215,7 +239,8 @@ export function openActivityDetail(occurrence) {
       detailItem("Duração", formatDuration(durationOf(occurrence))),
     ]),
 
-    occurrence.notes && el("p", { class: "detail__notes", text: occurrence.notes }),
+    occurrence.notes &&
+      el("p", { class: "detail__notes", text: occurrence.notes }),
   ]);
 
   const modal = openModal({
@@ -234,34 +259,40 @@ export function openActivityDetail(occurrence) {
           }),
         ]
       : [],
-    footer: canWrite() ? [
-      el("button", {
-        class: "btn btn--ghost",
-        type: "button",
-        text: occurrence.done ? "Reabrir" : "Concluir",
-        onclick: () => {
-          toggleOccurrenceDone(occurrence);
-          modal.close();
-          toast(occurrence.done ? "Atividade reaberta." : "Boa! Atividade concluída.");
-        },
-      }),
-      el("button", {
-        class: "btn btn--primary",
-        type: "button",
-        text: "Editar",
-        onclick: () => {
-          modal.close();
-          openActivityForm({ occurrence });
-        },
-      }),
-    ] : [
-      el("button", {
-        class: "btn btn--ghost",
-        type: "button",
-        text: "Fechar",
-        onclick: () => modal.close(),
-      }),
-    ],
+    footer: canWrite()
+      ? [
+          el("button", {
+            class: "btn btn--ghost",
+            type: "button",
+            text: occurrence.done ? "Reabrir" : "Concluir",
+            onclick: () => {
+              toggleOccurrenceDone(occurrence);
+              modal.close();
+              toast(
+                occurrence.done
+                  ? "Atividade reaberta."
+                  : "Boa! Atividade concluída.",
+              );
+            },
+          }),
+          el("button", {
+            class: "btn btn--primary",
+            type: "button",
+            text: "Editar",
+            onclick: () => {
+              modal.close();
+              openActivityForm({ occurrence });
+            },
+          }),
+        ]
+      : [
+          el("button", {
+            class: "btn btn--ghost",
+            type: "button",
+            text: "Fechar",
+            onclick: () => modal.close(),
+          }),
+        ],
   });
 
   return modal;
@@ -296,7 +327,7 @@ export async function deleteActivityFlow(occurrence) {
       choice === "series"
         ? "Rotina removida."
         : "Atividade removida só deste dia.",
-      "success"
+      "success",
     );
     return true;
   }
@@ -329,7 +360,7 @@ function findConflict(data, ignoreId) {
       (other) =>
         other.id !== ignoreId &&
         !other.done &&
-        overlaps(data.start, data.end, other.start, other.end)
+        overlaps(data.start, data.end, other.start, other.end),
     ) || null
   );
 }
