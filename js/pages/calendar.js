@@ -35,13 +35,16 @@ import {
   durationOf,
   toggleOccurrenceDone,
 } from "../core/schedule.js";
-import { categoryOf, emptyState, timelineList } from "../ui/components.js";
+import { categoryOf, emptyState, timelineList, taskItem } from "../ui/components.js";
 import { icon } from "../ui/icons.js";
 import {
   openActivityForm,
   openActivityDetail,
   deleteActivityFlow,
 } from "../features/activities.js";
+import { openTaskForm, deleteTaskFlow, sortTasks } from "../features/tasks.js";
+import { openModal } from "../ui/modal.js";
+import { canWrite, requireWrite } from "../ui/guard.js";
 import { toast } from "../ui/toast.js";
 
 const HOUR_HEIGHT = 52;
@@ -95,9 +98,146 @@ export function init() {
     paint();
   }
 
-  function openDay(date) {
-    cursor = date;
-    setView("day");
+  /* ---------- Modal do dia completo ---------- */
+
+  /**
+   * Abre um modal com tudo o que existe naquele dia — atividades, rotinas
+   * e tarefas com prazo — e permite marcar o dia inteiro como concluído
+   * sem precisar sair da grade do calendário.
+   */
+  function openDayDetail(iso) {
+    let unsubscribe = null;
+    const placeholder = el("div");
+
+    const modal = openModal({
+      title: formatDateLong(iso),
+      subtitle: iso === todayISO() ? "Hoje" : null,
+      wide: true,
+      body: placeholder,
+      footer: [
+        el("button", {
+          class: "btn btn--ghost",
+          type: "button",
+          text: "Abrir na agenda",
+          onclick: () => {
+            window.location.href = `today.html?date=${iso}`;
+          },
+        }),
+        el("button", {
+          class: "btn btn--primary",
+          type: "button",
+          text: "Nova atividade",
+          onclick: () => {
+            modal.close();
+            openActivityForm({ date: iso });
+          },
+        }),
+      ],
+      onClose: () => unsubscribe?.(),
+    });
+
+    const dayHandlers = {
+      onToggle: (occurrence) => {
+        toggleOccurrenceDone(occurrence);
+        if (!occurrence.done) toast("Feito! Mais uma concluída.");
+      },
+      onOpen: (occurrence) => openActivityDetail(occurrence),
+      onEdit: (occurrence) => openActivityForm({ occurrence }),
+      onDelete: (occurrence) => deleteActivityFlow(occurrence),
+    };
+
+    const taskHandlers = {
+      onToggle: (task) => {
+        store.toggleTask(task.id);
+        toast(task.status === "done" ? "Tarefa reaberta." : "Tarefa concluída.");
+      },
+      onEdit: (task) => openTaskForm({ task }),
+      onDelete: (task) => deleteTaskFlow(task),
+    };
+
+    function markAllDone() {
+      if (!requireWrite()) return;
+
+      const pendingOccurrences = occurrencesFor(iso).filter((o) => !o.done);
+      const pendingTasks = store
+        .getTasks({ dueDate: iso })
+        .filter((t) => t.status !== "done");
+
+      if (!pendingOccurrences.length && !pendingTasks.length) return;
+
+      pendingOccurrences.forEach((occurrence) => toggleOccurrenceDone(occurrence));
+      pendingTasks.forEach((task) => store.toggleTask(task.id));
+
+      toast("Dia todo concluído!");
+    }
+
+    function repaint() {
+      const occurrences = occurrencesFor(iso);
+      const tasks = sortTasks(store.getTasks({ dueDate: iso }));
+      const stats = dayStats(iso, occurrences);
+      const pendingTasks = tasks.filter((t) => t.status !== "done");
+      const hasAnything = Boolean(occurrences.length || tasks.length);
+      const allDone = hasAnything && stats.pending === 0 && !pendingTasks.length;
+
+      render(
+        placeholder,
+        el("div", { class: "inline", style: "margin-bottom:16px" }, [
+          el("span", {
+            class: "tag tag--plain",
+            text: `${stats.done}/${stats.total} atividades`,
+          }),
+          tasks.length
+            ? el("span", {
+                class: "tag tag--plain",
+                text: `${tasks.length - pendingTasks.length}/${tasks.length} tarefas`,
+              })
+            : null,
+          el("span", { class: "tag tag--plain", text: formatDuration(stats.plannedMinutes) }),
+          el("span", { class: "spacer" }),
+          canWrite() && hasAnything
+            ? el("button", {
+                class: "btn btn--ghost btn--sm",
+                type: "button",
+                text: "Marcar tudo como feito",
+                disabled: allDone,
+                onclick: markAllDone,
+              })
+            : null,
+        ]),
+
+        !hasAnything &&
+          emptyState({
+            icon: "calendar",
+            title: "Dia livre",
+            text: `Nada agendado para ${formatDateLong(iso)}.`,
+            action: {
+              label: "Nova atividade",
+              onClick: () => {
+                modal.close();
+                openActivityForm({ date: iso });
+              },
+            },
+          }),
+
+        occurrences.length
+          ? el("div", { class: "timeline" }, timelineList(occurrences, dayHandlers, { date: iso }))
+          : null,
+
+        tasks.length
+          ? el("div", { style: "margin-top:20px" }, [
+              el("p", {
+                class: "eyebrow",
+                style: "margin-bottom:8px",
+                text: "Tarefas com prazo neste dia",
+              }),
+              ...tasks.map((task) => taskItem(task, taskHandlers)),
+            ])
+          : null
+      );
+    }
+
+    unsubscribe = store.on("change", repaint);
+    repaint();
   }
 
   /* ---------- Controles ---------- */
@@ -161,11 +301,11 @@ export function init() {
             "aria-label": `${formatDateLong(iso)} — ${occurrences.length} ${
               occurrences.length === 1 ? "atividade" : "atividades"
             }`,
-            onclick: () => openDay(iso),
+            onclick: () => openDayDetail(iso),
             onkeydown: (event) => {
               if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault();
-                openDay(iso);
+                openDayDetail(iso);
               }
             },
           },
@@ -251,9 +391,9 @@ export function init() {
               role: "button",
               tabindex: "0",
               title: `Ver ${formatDateLong(iso)}`,
-              onclick: () => openDay(iso),
+              onclick: () => openDayDetail(iso),
               onkeydown: (event) => {
-                if (event.key === "Enter") openDay(iso);
+                if (event.key === "Enter") openDayDetail(iso);
               },
             },
             [

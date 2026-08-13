@@ -51,6 +51,17 @@
   border-bottom: 1px solid var(--border);
 }
 
+.modal__head-main {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+.modal__head-text {
+  min-width: 0;
+}
+
 .modal__title {
   font-size: 1.0625rem;
   font-weight: 600;
@@ -61,6 +72,100 @@
   margin-top: var(--sp-1);
   font-size: 0.8125rem;
   color: var(--text-2);
+}
+
+/* ---------- Identidade por tipo (rotina / atividade / tarefa) ----------
+   Um `tone` em openModal() colore o ícone do título, a linha de foco dos
+   campos e o botão principal — o suficiente para reconhecer de relance
+   qual cadastro está aberto, sem reinventar o modal para cada um. */
+.modal__panel[data-tone="activity"] {
+  --modal-accent: #b6f000; /* verde lima */
+  --modal-accent-soft: rgba(182, 240, 0, 0.16);
+  --modal-accent-wash: rgba(182, 240, 0, 0.07);
+  --modal-accent-ink: #14171a;
+}
+
+.modal__panel[data-tone="routine"] {
+  --modal-accent: #a78bfa; /* roxo */
+  --modal-accent-soft: rgba(167, 139, 250, 0.16);
+  --modal-accent-wash: rgba(167, 139, 250, 0.08);
+  --modal-accent-ink: #14171a;
+}
+
+.modal__panel[data-tone="task"] {
+  --modal-accent: #f472b6; /* rosa */
+  --modal-accent-soft: rgba(244, 114, 182, 0.16);
+  --modal-accent-wash: rgba(244, 114, 182, 0.08);
+  --modal-accent-ink: #14171a;
+}
+
+/* Vidro líquido, como o cartão de login: fundo translúcido com
+   blur + saturação puxando o que está atrás, brilho especular no
+   canto superior e só um traço da cor de cada tipo — o suficiente
+   pra diferenciar sem virar uma mancha colorida. */
+.modal__panel[data-tone] {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(90% 90% at 0% 0%, var(--modal-accent-wash), transparent 45%),
+    color-mix(in srgb, var(--surface) 68%, transparent);
+  border: 1px solid color-mix(in srgb, var(--modal-accent) 28%, var(--border-strong));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.14),
+    0 30px 70px rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+}
+
+/* Brilho especular na quina — o que faz o vidro parecer molhado
+   em vez de só embaçado (mesma receita do auth__card). */
+.modal__panel[data-tone]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.22),
+    rgba(255, 255, 255, 0.04) 26%,
+    transparent 52%
+  );
+  mix-blend-mode: overlay;
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .modal__panel[data-tone] {
+    background: color-mix(in srgb, var(--surface) 96%, transparent);
+  }
+}
+
+.modal__panel[data-tone] .modal__head,
+.modal__panel[data-tone] .modal__foot {
+  border-color: color-mix(in srgb, var(--modal-accent) 14%, var(--border));
+}
+
+.modal__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  margin-top: 1px;
+  color: var(--modal-accent, var(--accent));
+  background: var(--modal-accent-soft, var(--accent-soft));
+  border-radius: var(--r-md);
+}
+
+.modal__panel[data-tone] .modal__foot .btn--primary {
+  background: var(--modal-accent);
+  color: var(--modal-accent-ink);
+}
+
+.modal__panel[data-tone] .modal__foot .btn--primary:hover {
+  filter: brightness(1.08);
 }
 
 .modal__body {
@@ -140,6 +245,143 @@
   border-color: var(--danger);
 }
 
+/* ---------- Campos no modelo da tela de login ----------
+   Mesma ideia do cartão de entrada (auth__card): ícone à esquerda,
+   campo sem caixa — só o traço embaixo — e rótulo escondido quando
+   o placeholder já diz o que é. Usado pelos cadastros de atividade,
+   rotina e tarefa; a cor vem de --modal-accent (ver tone acima),
+   então os três reaproveitam a mesma regra e só mudam de cor. */
+.form--underline .field:has(> .input),
+.form--underline .field:has(> .select),
+.form--underline .field:has(> .textarea) {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  column-gap: var(--sp-3);
+  row-gap: var(--sp-1);
+  align-items: center;
+}
+
+.form--underline .field:has(> .input) > *,
+.form--underline .field:has(> .select) > *,
+.form--underline .field:has(> .textarea) > * {
+  grid-column: 2;
+}
+
+.form--underline .field:has(> .input)::before,
+.form--underline .field:has(> .select)::before,
+.form--underline .field:has(> .textarea)::before {
+  content: "";
+  grid-column: 1;
+  grid-row: 1 / -1;
+  align-self: start;
+  margin-top: 9px;
+  width: 18px;
+  height: 18px;
+  background-color: var(--modal-accent, var(--text-3));
+  -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%22M12%203l1.9%205.1L19%2010l-5.1%201.9L12%2017l-1.9-5.1L5%2010l5.1-1.9L12%203z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%22M12%203l1.9%205.1L19%2010l-5.1%201.9L12%2017l-1.9-5.1L5%2010l5.1-1.9L12%203z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E")
+    center / contain no-repeat;
+}
+
+.form--underline .field:has(input[type="date"])::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Crect%20x%3D%223%22%20y%3D%225%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22M3%2010h18M8%203v4M16%203v4%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Crect%20x%3D%223%22%20y%3D%225%22%20width%3D%2218%22%20height%3D%2216%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22M3%2010h18M8%203v4M16%203v4%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+}
+
+.form--underline .field:has(input[type="time"])::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M12%207v5l3%202%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%229%22%2F%3E%3Cpath%20d%3D%22M12%207v5l3%202%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+}
+
+.form--underline .field:has(> .textarea)::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%22M6%203h9l4%204v14H6z%22%2F%3E%3Cpath%20d%3D%22M15%203v4h4M8%2012h8M8%2016h8%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%22M6%203h9l4%204v14H6z%22%2F%3E%3Cpath%20d%3D%22M15%203v4h4M8%2012h8M8%2016h8%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+}
+
+.form--underline .field:has(select[name="priority"])::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%22M5%203v18%22%2F%3E%3Cpath%20d%3D%22M5%204h11l-2.5%204L16%2012H5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.7%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%22M5%203v18%22%2F%3E%3Cpath%20d%3D%22M5%204h11l-2.5%204L16%2012H5%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+}
+
+/* Com placeholder, o rótulo em cima seria redundante — mesma regra
+   da tela de login. Campos sem placeholder (data, hora) continuam
+   com rótulo visível: nenhum campo fica sem identificação. */
+.form--underline .field:has(> .input[placeholder]:not([placeholder=""])) > label,
+.form--underline .field:has(> .textarea[placeholder]:not([placeholder=""])) > label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.form--underline .field > .input,
+.form--underline .field > .textarea {
+  min-height: 36px;
+  padding: var(--sp-2) 0 8px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--border-strong);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.form--underline .field > .select {
+  min-height: 36px;
+  padding: var(--sp-2) var(--sp-6) 8px 0;
+  background-color: transparent;
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-2) 50%),
+    linear-gradient(135deg, var(--text-2) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 18px, calc(100% - 13px) 18px;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+  border: 0;
+  border-bottom: 1px solid var(--border-strong);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.form--underline .field > .textarea {
+  min-height: 64px;
+  resize: vertical;
+}
+
+.form--underline .field > .input:hover,
+.form--underline .field > .select:hover,
+.form--underline .field > .textarea:hover {
+  border-bottom-color: var(--text-2);
+}
+
+.form--underline .field > .input:focus,
+.form--underline .field > .select:focus,
+.form--underline .field > .textarea:focus {
+  outline: none;
+  background: none;
+  border-bottom-color: var(--modal-accent, var(--accent-line));
+  box-shadow: none;
+}
+
+.form--underline .field--invalid > .input,
+.form--underline .field--invalid > .select,
+.form--underline .field--invalid > .textarea {
+  border-bottom-color: var(--danger);
+}
+
+/* Categoria centralizada no modal — o único campo que não segue a
+   coluna com ícone, então ganha destaque próprio no meio do cartão. */
+.form--underline .field:has(> .swatches) {
+  align-items: center;
+  text-align: center;
+}
+
+.form--underline .field > .swatches {
+  justify-content: center;
+}
+
 /* Seletor de categoria em pastilhas coloridas */
 .swatches {
   display: flex;
@@ -208,9 +450,9 @@
 }
 
 .daypicker button[aria-pressed="true"] {
-  background: var(--accent-soft);
-  border-color: var(--accent-line);
-  color: var(--accent);
+  background: var(--modal-accent-soft, var(--accent-soft));
+  border-color: var(--modal-accent, var(--accent-line));
+  color: var(--modal-accent, var(--accent));
 }
 
 /* Switch */

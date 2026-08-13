@@ -23,7 +23,6 @@ import {
   maskedField,
 } from "../ui/fields.js";
 import { toast } from "../ui/toast.js";
-import { icon } from "../ui/icons.js";
 import { brandMark } from "../ui/shell.js";
 
 export function init() {
@@ -54,15 +53,7 @@ export function init() {
 
   function paintTabs() {
     if (first) {
-      render(
-        tabs,
-        el("p", { class: "auth__first" }, [
-          el("span", { class: "auth__first-icon", html: icon("sparkle", 15) }),
-          el("span", {
-            text: "Esta é a primeira conta do sistema — ela nasce como administradora.",
-          }),
-        ]),
-      );
+      render(tabs);
       return;
     }
 
@@ -239,7 +230,7 @@ export function init() {
         }),
       ],
       extra: meter,
-      submitLabel: first ? "Criar conta de administrador" : "Criar conta",
+      submitLabel: "Criar conta",
 
       async onSubmit(data, form) {
         try {

@@ -4,11 +4,12 @@
    Marcação esperada (opcional em cada página):
      [data-clock]  → HH:MM + <span class="clock__sec">:SS</span>
      [data-date]   → "Segunda-feira, 10 de Agosto de 2026"
-     [data-greeting] → "Bom dia, Luan 👋"
+     [data-greeting] → "Bom dia, Luan"
    ========================================================= */
 
 import { $, every, pad2, formatDateLong, greetingFor, todayISO } from "../utils.js";
 import { store } from "../storage.js";
+import { accounts } from "../auth/accounts.js";
 
 let stop = null;
 let lastGreeting = "";
@@ -38,8 +39,13 @@ function paint() {
 
   const greetingNode = $("[data-greeting]");
   if (greetingNode) {
-    const name = store.getSettings().userName?.trim();
-    const text = `${greetingFor(now.getHours())}${name ? `, ${name}` : ""} 👋`;
+    // "Como te chamar" (settings) manda, mas nem todo mundo passa por lá —
+    // sem isso, cai no nome do cadastro em vez de deixar a saudação sem nome.
+    const name =
+      store.getSettings().userName?.trim() ||
+      accounts.currentUser()?.name?.split(" ")[0] ||
+      "";
+    const text = `${greetingFor(now.getHours())}${name ? `, ${name}` : ""}`;
     if (text !== lastGreeting) {
       greetingNode.textContent = text;
       lastGreeting = text;

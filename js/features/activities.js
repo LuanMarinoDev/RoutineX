@@ -97,9 +97,13 @@ export function openActivityForm({ occurrence = null, date, start } = {}) {
     );
   }
 
+  form.node.classList.add("form--underline");
+
   const modal = openModal({
     title: editing ? "Editar atividade" : "Nova atividade",
     subtitle: editing ? formatDateLong(values.date) : "Reserve um horário no seu dia",
+    icon: "clock",
+    tone: "activity",
     body: form.node,
     footerStart: editing
       ? [

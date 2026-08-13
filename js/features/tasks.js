@@ -68,9 +68,13 @@ export function openTaskForm({ task = null, dueDate } = {}) {
     }),
   ]);
 
+  form.node.classList.add("form--underline");
+
   const modal = openModal({
     title: editing ? "Editar tarefa" : "Nova tarefa",
     subtitle: editing ? null : "Sem horário: entra na lista, não na agenda",
+    icon: "tasks",
+    tone: "task",
     body: form.node,
     footerStart: editing
       ? [
