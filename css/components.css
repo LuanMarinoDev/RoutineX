@@ -58,6 +58,25 @@
   min-width: 0;
 }
 
+/* Título no meio do cartão: o botão de fechar sai do fluxo e vai para a
+   quina, senão ele empurraria o texto para a esquerda do centro. */
+.modal__head--centered {
+  position: relative;
+  justify-content: center;
+}
+
+.modal__head--centered .modal__head-main {
+  flex: 1;
+  justify-content: center;
+  text-align: center;
+}
+
+.modal__head--centered > .icon-btn {
+  position: absolute;
+  top: var(--sp-4);
+  right: var(--sp-4);
+}
+
 .modal__head-text {
   min-width: 0;
 }
@@ -78,11 +97,20 @@
    Um `tone` em openModal() colore o ícone do título, a linha de foco dos
    campos e o botão principal — o suficiente para reconhecer de relance
    qual cadastro está aberto, sem reinventar o modal para cada um. */
+/* Atividade não tem cor própria: é o branco da interface. Sem tinta e
+   sem brilho na quina, o cartão fica sendo só o vidro e o conteúdo. */
 .modal__panel[data-tone="activity"] {
-  --modal-accent: #b6f000; /* verde lima */
-  --modal-accent-soft: rgba(182, 240, 0, 0.16);
-  --modal-accent-wash: rgba(182, 240, 0, 0.07);
+  --modal-accent: #ffffff;
+  --modal-accent-soft: rgba(255, 255, 255, 0.14);
+  --modal-accent-wash: transparent;
   --modal-accent-ink: #14171a;
+}
+
+/* No tema claro, branco sobre branco desaparece — o neutro vira a tinta. */
+:root[data-theme="light"] .modal__panel[data-tone="activity"] {
+  --modal-accent: #14171a;
+  --modal-accent-soft: rgba(20, 23, 26, 0.08);
+  --modal-accent-ink: #ffffff;
 }
 
 .modal__panel[data-tone="routine"] {
@@ -136,6 +164,18 @@
   mix-blend-mode: overlay;
 }
 
+/* Atividade sai do esquema: nem a mancha de cor no canto superior
+   esquerdo, nem o brilho diagonal que nasce na mesma quina. Precisa vir
+   depois das regras de [data-tone] — mesma especificidade, quem fala
+   por último manda. */
+.modal__panel[data-tone="activity"] {
+  background: color-mix(in srgb, var(--surface) 68%, transparent);
+}
+
+.modal__panel[data-tone="activity"]::before {
+  display: none;
+}
+
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .modal__panel[data-tone] {
     background: color-mix(in srgb, var(--surface) 96%, transparent);
@@ -166,6 +206,11 @@
 
 .modal__panel[data-tone] .modal__foot .btn--primary:hover {
   filter: brightness(1.08);
+}
+
+/* Clarear o branco não faz nada: aqui o retorno do hover é escurecer. */
+.modal__panel[data-tone="activity"] .modal__foot .btn--primary:hover {
+  filter: brightness(0.9);
 }
 
 .modal__body {
@@ -380,6 +425,56 @@
 
 .form--underline .field > .swatches {
   justify-content: center;
+}
+
+/* Categoria em lista suspensa: o ponto colorido fica por fora do
+   <select>, que não deixa pintar as próprias opções. */
+.select-wrap {
+  position: relative;
+  min-width: 0;
+}
+
+.select-wrap > .select {
+  width: 100%;
+  /* Espaço na direita para o ponto e para a seta, nessa ordem. */
+  padding-right: 44px;
+}
+
+/* A cor mora na quina direita, encostada na seta. */
+.select-dot {
+  position: absolute;
+  top: 50%;
+  right: 28px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--sw-color, var(--accent));
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* No modal os campos são linhas, não caixas: o select acompanha. */
+.form--underline .field > .select-wrap > .select {
+  min-height: 36px;
+  padding: var(--sp-2) 44px 8px 0;
+  background-color: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--border-strong);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.form--underline .field > .select-wrap > .select:hover {
+  border-bottom-color: var(--text-2);
+}
+
+.form--underline .field > .select-wrap > .select:focus {
+  outline: none;
+  border-bottom-color: var(--modal-accent, var(--accent-line));
+}
+
+.form--underline .field--invalid > .select-wrap > .select {
+  border-bottom-color: var(--danger);
 }
 
 /* Seletor de categoria em pastilhas coloridas */

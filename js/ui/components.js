@@ -335,6 +335,68 @@ export const PRIORITY_LABEL = {
 
 export const PRIORITY_ORDER = { urgente: 0, alta: 1, media: 2, baixa: 3 };
 
+/* ---------- Rosca de progresso (donut) ----------
+   Um anel é a leitura de "quanto do dia já saiu do papel": o arco
+   preenchido usa o acento e a pista usa o mesmo acento rebaixado,
+   então o estado se lê no anel inteiro, não só no pedaço colorido.
+   O número no centro é a figura principal — o gráfico só o emoldura.
+*/
+
+const DONUT_RADIUS = 48;
+const DONUT_LENGTH = 2 * Math.PI * DONUT_RADIUS;
+
+/**
+ * @param {object} options
+ * @param {number} options.percent   0–100
+ * @param {string} options.label     descrição para leitores de tela
+ * @param {string} options.caption   texto pequeno abaixo do número
+ * @param {Array<{label:string,value:string,tone?:"fill"|"track"}>} options.legend
+ */
+export function donutChart({ percent = 0, label = "Progresso", caption, legend = [] } = {}) {
+  const value = Math.max(0, Math.min(100, Math.round(percent)));
+  const filled = (value / 100) * DONUT_LENGTH;
+
+  // A 0% o arco vira um pingo por causa da ponta arredondada: melhor não desenhar.
+  const arc =
+    value > 0
+      ? `<circle class="donut__arc" cx="60" cy="60" r="${DONUT_RADIUS}"
+           stroke-dasharray="${filled.toFixed(2)} ${(DONUT_LENGTH - filled).toFixed(2)}"
+           transform="rotate(-90 60 60)" />`
+      : "";
+
+  const plot = el("div", { class: "donut__plot" }, [
+    el("div", {
+      class: "donut__svg",
+      html: `<svg viewBox="0 0 120 120" role="img" aria-label="${label}: ${value}%">
+               <title>${label}: ${value}%</title>
+               <circle class="donut__track" cx="60" cy="60" r="${DONUT_RADIUS}" />
+               ${arc}
+             </svg>`,
+    }),
+    el("div", { class: "donut__center" }, [
+      el("span", { class: "donut__value", text: `${value}%` }),
+      caption && el("span", { class: "donut__caption", text: caption }),
+    ]),
+  ]);
+
+  return el("figure", { class: "donut" }, [
+    plot,
+    // `legend.length &&` devolveria 0 sem legenda — e o 0 vira texto na tela.
+    legend.length > 0 &&
+      el(
+        "figcaption",
+        { class: "donut__legend" },
+        legend.map((item) =>
+          el("span", { class: "donut__key", dataset: { tone: item.tone || "fill" } }, [
+            el("span", { class: "donut__dot", "aria-hidden": "true" }),
+            el("span", { class: "donut__key-label", text: item.label }),
+            el("span", { class: "donut__key-value", text: String(item.value) }),
+          ])
+        )
+      ),
+  ]);
+}
+
 /* ---------- Barra de progresso rotulada ---------- */
 
 export function progressBar(percent, label) {

@@ -14,9 +14,10 @@ import { accounts } from "../auth/accounts.js";
 import { can, roleOf, isReadOnly } from "../auth/permissions.js";
 import { initialsOf } from "../auth/validators.js";
 
+/* Não existe item "Hoje": o dashboard é a tela do dia — resumo,
+   agenda e progresso moram lá. Para outro dia, o calendário. */
 const NAV = [
   { id: "dashboard", label: "Dashboard", href: "index.html", icon: "dashboard" },
-  { id: "today", label: "Hoje", href: "pages/today.html", icon: "today" },
   {
     id: "calendar",
     label: "Calendário",
@@ -63,7 +64,6 @@ const SETTINGS_ITEM = {
 
 const TITLES = {
   dashboard: "Dashboard",
-  today: "Hoje",
   calendar: "Calendário",
   tasks: "Tarefas",
   routines: "Rotinas",
@@ -382,8 +382,8 @@ function userMenu() {
 
 /* ---------- Barra inferior (celular) ---------- */
 
-/* As cinco telas que a mão alcança sem abrir menu nenhum. */
-const TABS = ["dashboard", "today", "calendar", "tasks"];
+/* As telas que a mão alcança sem abrir menu nenhum. */
+const TABS = ["dashboard", "calendar", "tasks", "routines"];
 
 function buildTabbar(current, root) {
   const user = accounts.currentUser();

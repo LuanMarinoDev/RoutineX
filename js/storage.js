@@ -44,6 +44,8 @@ const defaultState = () => ({
   createdAt: new Date().toISOString(),
   settings: {
     userName: "",
+    /* Bloco de notas do dashboard: texto livre, salvo enquanto se digita. */
+    dashboardNotes: "",
     theme: "dark",
     weekStartsOn: 1, // 0 = domingo, 1 = segunda
     notificationsEnabled: false,

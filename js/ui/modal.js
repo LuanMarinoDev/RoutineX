@@ -22,6 +22,7 @@ const stack = [];
  * @param {boolean} [options.wide]
  * @param {string} [options.icon]   nome do ícone (ui/icons.js) exibido junto ao título
  * @param {string} [options.tone]   identidade visual do modal — hoje "activity" | "routine" | "task"
+ * @param {boolean} [options.centered] título centrado no cartão, em vez de alinhado à esquerda
  * @param {Function} [options.onClose]
  * @returns {{ close: Function, panel: HTMLElement, root: HTMLElement }}
  */
@@ -34,6 +35,7 @@ export function openModal({
   wide = false,
   icon: iconName,
   tone,
+  centered = false,
   onClose,
 }) {
   const previouslyFocused = document.activeElement;
@@ -56,7 +58,7 @@ export function openModal({
       "aria-label": title,
     },
     [
-      el("div", { class: "modal__head" }, [
+      el("div", { class: `modal__head${centered ? " modal__head--centered" : ""}` }, [
         el("div", { class: "modal__head-main" }, [
           iconName && el("span", { class: "modal__icon", html: icon(iconName, 18) }),
           el("div", { class: "modal__head-text" }, [

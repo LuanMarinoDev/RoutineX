@@ -118,9 +118,14 @@ export function init() {
         el("button", {
           class: "btn btn--ghost",
           type: "button",
-          text: "Abrir na agenda",
+          text: "Abrir o dia",
           onclick: () => {
-            window.location.href = `today.html?date=${iso}`;
+            // A agenda do dia é a própria visão "dia" daqui — não vale
+            // recarregar a página para ver o que já está carregado.
+            modal.close();
+            cursor = iso;
+            syncUrl();
+            setView("day");
           },
         }),
         el("button", {
@@ -550,10 +555,8 @@ export function init() {
         el("button", {
           class: "btn btn--ghost btn--sm",
           type: "button",
-          text: "Abrir na agenda",
-          onclick: () => {
-            window.location.href = `today.html?date=${cursor}`;
-          },
+          text: "Nova atividade",
+          onclick: () => openActivityForm({ date: cursor }),
         }),
       ]),
       el("div", { class: "timeline" }, timelineList(occurrences, handlers, { date: cursor }))

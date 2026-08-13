@@ -72,8 +72,13 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
+/* Uma coluna: a ordem do HTML já é a ordem de leitura no celular. */
 .dash {
   grid-template-columns: minmax(0, 1fr);
+}
+
+.dash-stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .stat-row {
@@ -338,13 +343,22 @@
   .routine-list {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   }
+
+  /* Os quatro números do dia cabem numa linha só. */
+  .dash-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 /* ---------- 1024px: duas colunas ---------- */
 
 @media (min-width: 1024px) {
   .dash {
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "focus    progress"
+      "notes    notes"
+      "agenda   tasks";
   }
 }
 
@@ -355,8 +369,15 @@
     padding: var(--sp-7) var(--sp-6) var(--sp-9);
   }
 
+  /* Três colunas: "A seguir" à esquerda, progresso no meio, notas à
+     direita — os três na mesma linha e com a mesma altura. Embaixo, a
+     agenda ocupa duas colunas e as tarefas fecham a terceira, então
+     as bordas verticais continuam alinhadas de cima a baixo. */
   .dash {
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-areas:
+      "focus   progress  notes"
+      "agenda  agenda    tasks";
   }
 }
 

@@ -477,6 +477,16 @@ h3 {
   background-repeat: no-repeat;
 }
 
+/* A lista que o navegador abre é desenhada pelo sistema, e ela herda o
+   fundo do <select>. Onde esse fundo é transparente, o sistema cai no
+   branco padrão e a letra clara some. Por isso a opção declara as duas
+   cores por conta própria. */
+.select option,
+.select optgroup {
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+
 /* ---------- Chips e badges ---------- */
 
 .chip {

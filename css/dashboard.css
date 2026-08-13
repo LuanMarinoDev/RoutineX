@@ -20,6 +20,11 @@
   letter-spacing: -0.03em;
 }
 
+/* O nome de quem está logado é a parte da saudação que interessa. */
+.hero__name {
+  color: var(--accent);
+}
+
 .hero__date {
   margin-top: var(--sp-2);
   font-size: 0.9375rem;
@@ -49,23 +54,97 @@
   text-align: right;
 }
 
-/* ---------- Grade do dashboard ---------- */
+/* ---------- Resumo de hoje (faixa de números) ----------
+   Quatro medidas do dia, na mesma linha e com a mesma altura.
+   Vinham da tela "Hoje"; agora abrem o dashboard.
+*/
+
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-5);
+}
+
+.dash-stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  min-width: 0;
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+
+.dash-stat__label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.dash-stat__value {
+  font-size: clamp(1.375rem, 1.1rem + 0.9vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+/* ---------- Grade do dashboard ----------
+   Uma grade só, com áreas nomeadas: os cartões são filhos diretos,
+   então linhas inteiras compartilham a mesma altura e as bordas
+   ficam alinhadas em qualquer largura. O empilhamento de cada
+   tamanho de tela mora em responsive.css.
+*/
 
 .dash {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "focus"
+    "progress"
+    "notes"
+    "agenda"
+    "tasks";
   gap: var(--sp-5);
-  align-items: start;
+  align-items: stretch;
 }
 
-.dash__col {
+/* Cada célula preenche a altura da linha e organiza o conteúdo em coluna. */
+.dash__cell {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-5);
   min-width: 0;
 }
 
-/* ---------- Card em foco (agora / próxima) ---------- */
+.dash__cell--focus {
+  grid-area: focus;
+}
+.dash__cell--progress {
+  grid-area: progress;
+}
+.dash__cell--notes {
+  grid-area: notes;
+}
+.dash__cell--agenda {
+  grid-area: agenda;
+}
+.dash__cell--tasks {
+  grid-area: tasks;
+}
+
+/* O corpo de cada cartão ocupa a sobra, então cartões vizinhos de
+   conteúdos diferentes terminam com as bordas casadas — e um estado
+   vazio fica centrado na altura toda em vez de grudar no topo. */
+.dash__cell > .timeline,
+.dash__cell > #dash-tasks,
+.dash__cell > .empty {
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---------- Card "A seguir" (agora / próxima) ---------- */
 
 .focus-card {
   position: relative;
@@ -74,6 +153,17 @@
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
+}
+
+.focus-card__body {
+  flex: 1;
+}
+
+.focus-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-5);
 }
 
 .focus-card[data-state="now"] {
@@ -167,25 +257,19 @@
 
 /* ---------- Progresso do dia ---------- */
 
-.day-progress__top {
+.day-progress__chart {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--sp-3);
-  margin-bottom: var(--sp-4);
-}
-
-.day-progress__pct {
-  font-family: var(--font-mono);
-  font-size: 1.75rem;
-  font-weight: 500;
-  letter-spacing: -0.04em;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-2) 0;
 }
 
 .day-progress__caption {
-  margin-top: var(--sp-3);
+  margin-top: var(--sp-4);
   font-size: 0.8125rem;
   color: var(--text-2);
+  text-align: center;
 }
 
 .stat-row {
@@ -193,6 +277,126 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--sp-3);
   margin-top: var(--sp-5);
+}
+
+/* ---------- Rosca de progresso ----------
+   Anel de um tom só: o arco cheio é o acento e a pista é o mesmo
+   acento rebaixado, então a leitura vale para o anel inteiro. O
+   número no centro é a figura principal — proporcional, não
+   tabular, porque números grandes ficam frouxos com dígitos de
+   largura fixa.
+*/
+
+.donut {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  width: 100%;
+}
+
+.donut__plot {
+  position: relative;
+  width: clamp(148px, 46%, 196px);
+  aspect-ratio: 1;
+}
+
+.donut__svg {
+  position: absolute;
+  inset: 0;
+}
+
+.donut__svg svg {
+  width: 100%;
+  height: 100%;
+}
+
+.donut__track {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 11;
+  opacity: 0.18;
+}
+
+.donut__arc {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 11;
+  stroke-linecap: round;
+  transition: stroke-dasharray 500ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.donut__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.donut__value {
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.donut__caption {
+  font-size: 0.75rem;
+  color: var(--text-2);
+}
+
+.donut__legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-2) var(--sp-4);
+  font-size: 0.8125rem;
+  color: var(--text-2);
+}
+
+.donut__key {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.donut__dot {
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.donut__key[data-tone="track"] .donut__dot {
+  opacity: 0.28;
+}
+
+.donut__key-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+/* ---------- Bloco de anotações ---------- */
+
+.notes-card__status {
+  font-size: 0.75rem;
+  color: var(--text-3);
+}
+
+/* Sem alça de redimensionar: o campo já ocupa o cartão inteiro, e
+   arrastar a alça desalinharia a linha de cartões. */
+.notes-card__field {
+  flex: 1;
+  min-height: 200px;
+  padding: var(--sp-3);
+  resize: none;
+  line-height: 1.7;
 }
 
 .day-nav {

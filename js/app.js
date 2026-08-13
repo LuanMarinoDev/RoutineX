@@ -28,7 +28,6 @@ import { initNotifications } from "./features/notifications.js";
 const PAGES = {
   login: () => import("./pages/login.js"),
   dashboard: () => import("./pages/dashboard.js"),
-  today: () => import("./pages/today.js"),
   calendar: () => import("./pages/calendar.js"),
   tasks: () => import("./pages/tasks.js"),
   routines: () => import("./pages/routines.js"),
@@ -145,7 +144,8 @@ function initCreateBridge() {
 
 const SHORTCUTS = {
   n: () => requestNewActivity({ source: "shortcut" }),
-  t: (root) => go(root, "pages/today.html"),
+  // O dia de hoje agora abre no dashboard; "t" leva para lá.
+  t: (root) => go(root, "index.html"),
   c: (root) => go(root, "pages/calendar.html"),
 };
 
