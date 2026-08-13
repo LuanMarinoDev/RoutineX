@@ -85,9 +85,13 @@ export function openRoutineForm({ routine = null } = {}) {
     lastStart = next;
   });
 
+  form.node.classList.add("form--underline");
+
   const modal = openModal({
     title: editing ? "Editar rotina" : "Nova rotina",
     subtitle: "O que se repete toda semana",
+    icon: "routines",
+    tone: "routine",
     body: form.node,
     footerStart: editing
       ? [

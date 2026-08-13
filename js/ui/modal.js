@@ -20,6 +20,8 @@ const stack = [];
  * @param {Node[]} [options.footer]        botões do rodapé
  * @param {Node[]} [options.footerStart]   botões alinhados à esquerda
  * @param {boolean} [options.wide]
+ * @param {string} [options.icon]   nome do ícone (ui/icons.js) exibido junto ao título
+ * @param {string} [options.tone]   identidade visual do modal — hoje "activity" | "routine" | "task"
  * @param {Function} [options.onClose]
  * @returns {{ close: Function, panel: HTMLElement, root: HTMLElement }}
  */
@@ -30,6 +32,8 @@ export function openModal({
   footer = [],
   footerStart = [],
   wide = false,
+  icon: iconName,
+  tone,
   onClose,
 }) {
   const previouslyFocused = document.activeElement;
@@ -46,15 +50,19 @@ export function openModal({
     "div",
     {
       class: `modal__panel${wide ? " modal__panel--wide" : ""}`,
+      dataset: tone ? { tone } : {},
       role: "dialog",
       "aria-modal": "true",
       "aria-label": title,
     },
     [
       el("div", { class: "modal__head" }, [
-        el("div", {}, [
-          el("h2", { class: "modal__title", text: title }),
-          subtitle && el("p", { class: "modal__sub", text: subtitle }),
+        el("div", { class: "modal__head-main" }, [
+          iconName && el("span", { class: "modal__icon", html: icon(iconName, 18) }),
+          el("div", { class: "modal__head-text" }, [
+            el("h2", { class: "modal__title", text: title }),
+            subtitle && el("p", { class: "modal__sub", text: subtitle }),
+          ]),
         ]),
         closeButton,
       ]),
