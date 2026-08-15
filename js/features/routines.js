@@ -15,7 +15,7 @@ import {
   textareaField,
   dateField,
   timeField,
-  categoryField,
+  categorySelectField,
   daysField,
 } from "../ui/fields.js";
 import { requireWrite } from "../ui/guard.js";
@@ -44,7 +44,7 @@ export function openRoutineForm({ routine = null } = {}) {
       placeholder: "Ex.: Academia",
       required: true,
     }),
-    categoryField({ value: values.categoryId }),
+    categorySelectField({ value: values.categoryId }),
     daysField({
       value: values.days,
       hint: "A rotina aparece automaticamente nesses dias, no calendário e na agenda.",

@@ -13,7 +13,7 @@ import {
   textareaField,
   dateField,
   selectField,
-  categoryField,
+  categorySelectField,
 } from "../ui/fields.js";
 import { requireWrite } from "../ui/guard.js";
 
@@ -45,7 +45,7 @@ export function openTaskForm({ task = null, dueDate } = {}) {
       placeholder: "Ex.: Pagar a conta de luz",
       required: true,
     }),
-    categoryField({ value: values.categoryId }),
+    categorySelectField({ value: values.categoryId }),
     [
       dateField({
         name: "dueDate",

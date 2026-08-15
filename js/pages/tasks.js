@@ -4,7 +4,7 @@
    atrasadas primeiro, depois hoje, esta semana, depois e sem data.
    ========================================================= */
 
-import { $, $$, el, render, todayISO, addDays, formatRelativeDay } from "../utils.js";
+import { $, $$, el, render, todayISO, addDays } from "../utils.js";
 import { store } from "../storage.js";
 import { taskItem, emptyState } from "../ui/components.js";
 import { openTaskForm, deleteTaskFlow, sortTasks } from "../features/tasks.js";
@@ -21,7 +21,6 @@ const FILTERS = {
 export function init() {
   const root = $("#tasks-root");
   const toolbar = $("#tasks-toolbar");
-  const summary = $("#tasks-summary");
 
   const params = new URLSearchParams(window.location.search);
   let filter = FILTERS[params.get("filter")] ? params.get("filter") : "pending";
@@ -88,30 +87,6 @@ export function init() {
 
   /* ---------- Pintura ---------- */
 
-  function paintSummary(all) {
-    const pending = all.filter((task) => task.status !== "done");
-    const late = pending.filter((task) => task.dueDate && task.dueDate < todayISO());
-
-    render(
-      summary,
-      el("div", { class: "day-summary" }, [
-        stat("Em aberto", String(pending.length)),
-        stat("Atrasadas", String(late.length)),
-        stat("Concluídas", String(all.length - pending.length)),
-        stat(
-          "Próximo prazo",
-          pending.find((task) => task.dueDate)
-            ? formatRelativeDay(
-                pending
-                  .filter((task) => task.dueDate)
-                  .sort((a, b) => a.dueDate.localeCompare(b.dueDate))[0].dueDate
-              )
-            : "—"
-        ),
-      ])
-    );
-  }
-
   function paintList() {
     const all = store.getTasks();
     const visible = sortTasks(all.filter(FILTERS[filter].match));
@@ -160,7 +135,6 @@ export function init() {
 
   function paint() {
     paintToolbar();
-    paintSummary(store.getTasks());
     paintList();
   }
 
@@ -169,11 +143,4 @@ export function init() {
 
   paint();
   store.on("change", paint);
-}
-
-function stat(label, value) {
-  return el("div", { class: "stat" }, [
-    el("p", { class: "stat__value", text: value }),
-    el("p", { class: "stat__label", text: label }),
-  ]);
 }

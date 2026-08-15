@@ -2,6 +2,26 @@
    RoutineX — dashboard.css
    ========================================================= */
 
+/* ---------- Painel único, tela toda (mesma ideia de estatísticas) ---------- */
+
+body[data-page="dashboard"] .content {
+  max-width: none;
+  width: 100%;
+}
+
+.dash-panel {
+  padding: clamp(var(--sp-4), 1.2vw, var(--sp-6));
+}
+
+/* Cartões internos um tom mais claro que o painel que os envolve —
+   assim eles se leem como cartões dentro do cartão, não como o
+   próprio fundo da página. */
+.dash-panel .card,
+.dash-panel .focus-card,
+.dash-panel .dash-stat {
+  background: var(--surface-2);
+}
+
 /* ---------- Cabeçalho: saudação + relógio ---------- */
 
 .hero {

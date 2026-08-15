@@ -69,7 +69,8 @@
 
   /* Layout */
   --sidebar-w: 252px;
-  --topbar-h: 60px;
+  --topbar-h: 88px;
+  --topbar-control-h: 40px;
   --tabbar-h: 58px;
   --content-max: 1200px;
 
@@ -327,6 +328,16 @@ h3 {
 .card--flush {
   padding: 0;
   overflow: hidden;
+}
+
+/* Painel de página: um cartão só envolvendo a tela inteira, em vez de
+   vários cartões soltos — usado quando o conteúdo já forma sua própria
+   grade interna (dashboard, estatísticas). Sem padding próprio: quem
+   usa define o respiro conforme a grade de dentro. */
+.page-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
 }
 
 .card__head {

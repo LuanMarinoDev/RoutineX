@@ -97,20 +97,11 @@
    Um `tone` em openModal() colore o ícone do título, a linha de foco dos
    campos e o botão principal — o suficiente para reconhecer de relance
    qual cadastro está aberto, sem reinventar o modal para cada um. */
-/* Atividade não tem cor própria: é o branco da interface. Sem tinta e
-   sem brilho na quina, o cartão fica sendo só o vidro e o conteúdo. */
 .modal__panel[data-tone="activity"] {
-  --modal-accent: #ffffff;
-  --modal-accent-soft: rgba(255, 255, 255, 0.14);
-  --modal-accent-wash: transparent;
+  --modal-accent: #38d9d9; /* ciano */
+  --modal-accent-soft: rgba(56, 217, 217, 0.16);
+  --modal-accent-wash: rgba(56, 217, 217, 0.08);
   --modal-accent-ink: #14171a;
-}
-
-/* No tema claro, branco sobre branco desaparece — o neutro vira a tinta. */
-:root[data-theme="light"] .modal__panel[data-tone="activity"] {
-  --modal-accent: #14171a;
-  --modal-accent-soft: rgba(20, 23, 26, 0.08);
-  --modal-accent-ink: #ffffff;
 }
 
 .modal__panel[data-tone="routine"] {
@@ -121,10 +112,10 @@
 }
 
 .modal__panel[data-tone="task"] {
-  --modal-accent: #f472b6; /* rosa */
-  --modal-accent-soft: rgba(244, 114, 182, 0.16);
-  --modal-accent-wash: rgba(244, 114, 182, 0.08);
-  --modal-accent-ink: #14171a;
+  --modal-accent: var(--accent); /* azul padrão do sistema */
+  --modal-accent-soft: var(--accent-soft);
+  --modal-accent-wash: rgba(var(--accent-rgb), 0.08);
+  --modal-accent-ink: var(--accent-ink);
 }
 
 /* Vidro líquido, como o cartão de login: fundo translúcido com
@@ -164,18 +155,6 @@
   mix-blend-mode: overlay;
 }
 
-/* Atividade sai do esquema: nem a mancha de cor no canto superior
-   esquerdo, nem o brilho diagonal que nasce na mesma quina. Precisa vir
-   depois das regras de [data-tone] — mesma especificidade, quem fala
-   por último manda. */
-.modal__panel[data-tone="activity"] {
-  background: color-mix(in srgb, var(--surface) 68%, transparent);
-}
-
-.modal__panel[data-tone="activity"]::before {
-  display: none;
-}
-
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .modal__panel[data-tone] {
     background: color-mix(in srgb, var(--surface) 96%, transparent);
@@ -206,11 +185,6 @@
 
 .modal__panel[data-tone] .modal__foot .btn--primary:hover {
   filter: brightness(1.08);
-}
-
-/* Clarear o branco não faz nada: aqui o retorno do hover é escurecer. */
-.modal__panel[data-tone="activity"] .modal__foot .btn--primary:hover {
-  filter: brightness(0.9);
 }
 
 .modal__body {
@@ -416,19 +390,10 @@
   border-bottom-color: var(--danger);
 }
 
-/* Categoria centralizada no modal — o único campo que não segue a
-   coluna com ícone, então ganha destaque próprio no meio do cartão. */
-.form--underline .field:has(> .swatches) {
-  align-items: center;
-  text-align: center;
-}
-
-.form--underline .field > .swatches {
-  justify-content: center;
-}
-
-/* Categoria em lista suspensa: o ponto colorido fica por fora do
-   <select>, que não deixa pintar as próprias opções. */
+/* Categoria em lista suspensa: um <select> nativo não deixa pintar as
+   próprias opções, então o gatilho e a lista são um combobox construído
+   na mão (ver .cat-select__trigger mais abaixo) — o ponto colorido do
+   valor atual fica por fora, encostado na seta. */
 .select-wrap {
   position: relative;
   min-width: 0;
@@ -475,6 +440,76 @@
 
 .form--underline .field--invalid > .select-wrap > .select {
   border-bottom-color: var(--danger);
+}
+
+/* Gatilho do combobox: por baixo é um <button>, então herda a caixa e
+   a seta de .select, mas precisa das regras que um <select> ganha de
+   graça do navegador — texto à esquerda, uma linha só, mão no cursor. */
+.cat-select__trigger {
+  display: block;
+  overflow: hidden;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* Lista de opções: mesma receita do menu da conta (.menu__list), com
+   o ponto da cor repetido em cada linha — a diferença que faz esse
+   combobox valer a pena sobre o <select> nativo. */
+.cat-select__list {
+  position: absolute;
+  right: 0;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 20;
+  max-height: 220px;
+  margin: 0;
+  padding: var(--sp-1);
+  overflow-y: auto;
+  list-style: none;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow-2);
+}
+
+.cat-select__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-xs);
+  font-size: 0.875rem;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.cat-select__option:hover,
+.cat-select__option:focus {
+  background: var(--surface-3);
+  color: var(--text);
+  outline: none;
+}
+
+.cat-select__option[aria-selected="true"] {
+  background: var(--modal-accent-soft, var(--accent-soft));
+  color: var(--modal-accent, var(--accent));
+  font-weight: 550;
+}
+
+/* O ponto, aqui, mora dentro da própria opção — por isso ao lado
+   direito do nome, e não por fora como o do gatilho. */
+.cat-select__option-dot {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--sw-color, var(--accent));
 }
 
 /* Seletor de categoria em pastilhas coloridas */

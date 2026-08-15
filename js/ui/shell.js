@@ -62,17 +62,6 @@ const SETTINGS_ITEM = {
   icon: "settings",
 };
 
-const TITLES = {
-  dashboard: "Dashboard",
-  calendar: "Calendário",
-  tasks: "Tarefas",
-  routines: "Rotinas",
-  statistics: "Estatísticas",
-  settings: "Configurações",
-  profile: "Meu perfil",
-  users: "Usuários",
-};
-
 /* O botão principal muda de acordo com a tela em que você está. */
 const PRIMARY_ACTION = {
   tasks: { kind: "task", label: "Nova tarefa" },
@@ -155,18 +144,6 @@ function navLink(item, current, root) {
 
 function buildSidebar(current, root) {
   return el("aside", { class: "sidebar", id: "sidebar" }, [
-    // Só a logo, sem texto ao lado: a marca fala por si.
-    el(
-      "a",
-      {
-        class: "brand",
-        href: root + "index.html",
-        "aria-label": "RoutineX — ir para o dashboard",
-        title: "RoutineX",
-      },
-      [brandMark(root)]
-    ),
-
     el("nav", { class: "nav", "aria-label": "Navegação principal" }, [
       el("p", { class: "eyebrow nav__label", text: "Navegar" }),
       ...visibleNav().map((item) => navLink(item, current, root)),
@@ -250,7 +227,7 @@ function buildTopbar(current) {
     el("input", {
       class: "input",
       type: "search",
-      placeholder: "Buscar…  /",
+      placeholder: "Pesquisar",
       "aria-label": "Abrir a busca global",
       readonly: true,
       onclick: openSearchOverlay,
@@ -268,21 +245,35 @@ function buildTopbar(current) {
 
   const action = PRIMARY_ACTION[current] || DEFAULT_ACTION;
   const user = accounts.currentUser();
+  const root = document.body.dataset.root ?? "";
+
+  // A logo mora no centro do header — a mesma marca em toda tela.
+  const brand = el(
+    "a",
+    {
+      class: "topbar__brand",
+      href: root + "index.html",
+      "aria-label": "RoutineX — ir para o dashboard",
+      title: "RoutineX",
+    },
+    [brandMark(root, { size: 64 })]
+  );
 
   // Visitante não cria nada: em vez de um botão que falha, um selo honesto.
   if (isReadOnly(user)) {
     return el("header", { class: "topbar" }, [
-      burger,
-      el("h2", { class: "topbar__title", text: TITLES[current] || "RoutineX" }),
-      el("div", { class: "topbar__spacer" }),
-      search,
-      searchButton,
-      el("span", {
-        class: "tag tag--plain",
-        title: "Seu nível de acesso permite apenas consultar",
-        text: "Somente leitura",
-      }),
-      userMenu(),
+      el("div", { class: "topbar__start" }, [burger]),
+      brand,
+      el("div", { class: "topbar__end" }, [
+        search,
+        searchButton,
+        el("span", {
+          class: "tag tag--plain",
+          title: "Seu nível de acesso permite apenas consultar",
+          text: "Somente leitura",
+        }),
+        userMenu(),
+      ]),
     ]);
   }
 
@@ -296,13 +287,9 @@ function buildTopbar(current) {
   });
 
   return el("header", { class: "topbar" }, [
-    burger,
-    el("h2", { class: "topbar__title", text: TITLES[current] || "RoutineX" }),
-    el("div", { class: "topbar__spacer" }),
-    search,
-    searchButton,
-    newButton,
-    userMenu(),
+    el("div", { class: "topbar__start" }, [burger]),
+    brand,
+    el("div", { class: "topbar__end" }, [search, searchButton, newButton, userMenu()]),
   ]);
 }
 

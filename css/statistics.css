@@ -1,79 +1,251 @@
 /* =========================================================
    RoutineX — statistics.css
+   Um cartão só (.page-panel, padrão do resto do sistema) envolve
+   o painel inteiro; dentro dele os blocos se alinham numa grade
+   de 3 linhas x 2 colunas. Tudo é fluido: ocupa a tela toda no
+   desktop e empilha no celular sem estourar a largura.
    ========================================================= */
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: var(--sp-4);
-  margin-bottom: var(--sp-5);
+/* ---------- A tela usa toda a largura disponível ---------- */
+
+body[data-page="statistics"] .content {
+  max-width: none;
+  width: 100%;
+  /* Trocar por um valor (ex.: 2200px) se quiser limitar em telas gigantes. */
 }
 
-.stat-card {
-  padding: var(--sp-5);
-  background: var(--surface);
+/* ---------- Grade do painel (mobile first: tudo empilha) ---------- */
+
+.stats-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+}
+
+.panel--hero,
+.stats-grid,
+.panel--chart,
+.stats-rail,
+.stats-banner {
+  grid-column: 1;
+  grid-row: auto;
+}
+
+.stats-rail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: inherit;
+}
+
+.stats-banner:empty {
+  display: none;
+}
+
+/* .card__head é do sistema (global.css); aqui só ajusta pra telas
+   bem estreitas, onde título e ação podem não caber lado a lado. */
+.card__head {
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+/* ---------- Blocos internos ---------- */
+
+.panel,
+.stat-card,
+.rail-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
 }
 
-.stat-card__value {
-  margin-top: var(--sp-3);
-  font-family: var(--font-mono);
-  font-size: 2rem;
+.panel {
+  padding: clamp(var(--sp-3), 0.9vw, var(--sp-5));
+}
+
+/* ---------- Bloco principal ---------- */
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  justify-items: center;
+  gap: clamp(var(--sp-4), 2vw, var(--sp-6));
+  flex: 1;
+  text-align: center;
+}
+
+.hero__side {
+  min-width: 0;
+}
+
+.hero__value {
+  font-size: clamp(2rem, 2.4vw, 3.25rem);
   font-weight: 500;
   letter-spacing: -0.04em;
   line-height: 1;
 }
 
-.stat-card--accent .stat-card__value {
-  color: var(--accent);
+.hero__hint {
+  margin-top: var(--sp-2);
+  font-size: 0.8125rem;
+  color: var(--text-3);
 }
 
-/* Gráfico semanal em CSS puro */
-.bars {
+/* ---------- Rosca ---------- */
+
+.donut-wrap {
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  align-items: end;
+  place-items: center;
+}
+
+.donut svg {
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+}
+
+/* No celular, com tudo empilhado, a rosca do trilho pode ser do
+   mesmo tamanho da principal — só volta a encolher com mais tela. */
+.rail-card .donut svg {
+  max-width: 200px;
+}
+
+.donut__center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  pointer-events: none;
+}
+
+.donut__value {
+  font-size: clamp(1.375rem, 1.4vw, 2rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.donut__label {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+}
+
+.legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  list-style: none;
+  padding: 0;
+}
+
+.legend__row {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  align-items: center;
   gap: var(--sp-3);
-  height: 200px;
+  /* A lista não centraliza mesmo com o .hero centralizado no celular. */
+  text-align: left;
+}
+
+.legend__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend__name {
+  font-size: 0.8125rem;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.legend__value {
+  font-size: 0.75rem;
+  color: var(--text-2);
+  text-align: right;
+}
+
+/* ---------- Números com curva ---------- */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: inherit;
+}
+
+.stat-card {
+  justify-content: space-between;
+  padding: clamp(var(--sp-3), 0.9vw, var(--sp-5));
+  padding-bottom: 0;
+  overflow: hidden;
+}
+
+.stat-card__value {
+  margin-top: var(--sp-2);
+  font-size: clamp(1.5rem, 1.6vw, 2.25rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.stat-card__hint {
+  margin-top: var(--sp-1);
+  font-size: 0.75rem;
+  color: var(--text-3);
+}
+
+.spark {
+  margin: var(--sp-3) clamp(calc(var(--sp-5) * -1), -0.9vw, calc(var(--sp-3) * -1)) 0;
+}
+
+.spark svg {
+  display: block;
+  width: 100%;
+  height: clamp(52px, 5vh, 84px);
+}
+
+/* ---------- Colunas: planejado x concluído ---------- */
+
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(2px, 0.3vw, 6px);
+  flex: 1;
+  min-height: clamp(150px, 22vh, 320px);
   padding-top: var(--sp-4);
 }
 
 .bars__col {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--sp-2);
   height: 100%;
-  justify-content: flex-end;
 }
 
 .bars__bar {
+  position: relative;
   width: 100%;
-  max-width: 40px;
+  max-width: clamp(20px, 2vw, 48px);
   min-height: 4px;
   border-radius: var(--r-xs) var(--r-xs) 2px 2px;
   background: var(--surface-3);
   transition: height var(--t);
-}
-
-.bars__col[data-active="true"] .bars__bar {
-  background: var(--accent);
-}
-
-.bars__label {
-  font-size: 0.6875rem;
-  color: var(--text-3);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-/* ---------- Barras: planejado x concluído ---------- */
-
-.bars__bar {
-  position: relative;
-  display: flex;
-  align-items: flex-end;
 }
 
 .bars__done {
@@ -84,22 +256,34 @@
   transition: height var(--t);
 }
 
+.bars__label {
+  font-size: 0.5625rem;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
 .bars__col[data-today="true"] .bars__label {
   color: var(--accent);
   font-weight: 650;
 }
 
-.stat-card__hint {
-  margin-top: var(--sp-1);
-  font-size: 0.75rem;
-  color: var(--text-3);
+.bars--mini {
+  flex: 1;
+  min-height: clamp(84px, 9vh, 150px);
+  padding-top: var(--sp-3);
+}
+
+.bars--mini .bars__bar {
+  max-width: clamp(16px, 1.4vw, 30px);
 }
 
 .chart-legend {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--sp-4);
-  justify-content: center;
-  padding-top: var(--sp-4);
+  margin-left: 0;
   font-size: 0.75rem;
   color: var(--text-2);
 }
@@ -113,27 +297,183 @@
 .chart-legend__dot {
   width: 10px;
   height: 10px;
-  border-radius: var(--r-full);
+  border-radius: 50%;
 }
 
-/* ---------- Divisão por categoria ---------- */
+/* ---------- Trilho lateral ---------- */
 
-.breakdown {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-4);
-}
-
-.breakdown__head {
-  display: flex;
-  align-items: center;
+.rail-card {
   justify-content: space-between;
   gap: var(--sp-3);
-  margin-bottom: var(--sp-2);
+  padding: clamp(var(--sp-3), 0.9vw, var(--sp-5));
 }
 
-.breakdown__value {
-  font-size: 0.75rem;
+.rail-card__pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: var(--sp-3);
+}
+
+.pair__value {
+  font-size: clamp(1.125rem, 1.1vw, 1.75rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.pair__label {
+  margin-top: 4px;
+  font-size: 0.6875rem;
+  color: var(--text-3);
+}
+
+/* Faixa de constância: um quadradinho por dia. */
+.heat {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  gap: clamp(3px, 0.25vw, 6px);
+  flex: 1;
+}
+
+.heat__cell {
+  flex: 1 0 clamp(8px, 0.8vw, 16px);
+  min-height: clamp(18px, 1.6vh, 30px);
+  border-radius: 3px;
+  background: var(--surface-3);
+}
+
+.heat__cell[data-complete="true"] {
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
+/* ---------- Faixa do rodapé ---------- */
+
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  border-radius: var(--r-md);
+}
+
+.banner__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.banner__text {
+  margin-top: var(--sp-1);
+  font-size: 0.8125rem;
   color: var(--text-2);
-  white-space: nowrap;
+}
+
+.banner .btn {
+  margin-left: 0;
+  flex-shrink: 0;
+}
+
+.banner__close {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.banner__close:hover {
+  background: var(--surface-3);
+}
+
+/* ---------- Telefone grande: volta o respiro normal ---------- */
+
+@media (min-width: 560px) {
+  .stats-panel {
+    gap: clamp(var(--sp-3), 1vw, var(--sp-5));
+    padding: clamp(var(--sp-3), 1vw, var(--sp-5));
+    border-radius: var(--r-lg);
+  }
+
+  .card__head {
+    flex-wrap: nowrap;
+    gap: var(--sp-3);
+  }
+
+  .bars__label {
+    font-size: 0.625rem;
+  }
+
+  .chart-legend {
+    margin-left: auto;
+  }
+}
+
+/* ---------- Tablet: hero lado a lado, rosca menor no trilho ---------- */
+
+@media (min-width: 820px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr) auto;
+    justify-items: normal;
+    text-align: left;
+  }
+
+  .donut svg {
+    max-width: clamp(180px, 15vw, 300px);
+  }
+
+  .rail-card .donut svg {
+    max-width: clamp(130px, 11vw, 210px);
+  }
+
+  .banner {
+    flex-wrap: nowrap;
+  }
+
+  .banner .btn {
+    margin-left: auto;
+  }
+
+  .stats-rail {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+
+/* ---------- Desktop: o trilho passa a acompanhar as linhas do
+   painel principal — as bordas batem porque dividem a mesma grade. ---------- */
+
+@media (min-width: 1080px) {
+  .stats-panel {
+    grid-template-columns: minmax(0, 1fr) clamp(280px, 20vw, 420px);
+    grid-template-rows: auto auto auto auto;
+  }
+
+  .panel--hero  { grid-column: 1; grid-row: 1; }
+  .stats-grid   { grid-column: 1; grid-row: 2; }
+  .panel--chart { grid-column: 1; grid-row: 3; }
+  .stats-banner { grid-column: 1 / -1; grid-row: 4; }
+
+  .stats-rail {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    grid-template-columns: none;
+    grid-template-rows: subgrid;
+  }
+}
+
+@supports not (grid-template-rows: subgrid) {
+  @media (min-width: 1080px) {
+    .stats-rail {
+      grid-template-rows: repeat(3, minmax(0, 1fr));
+    }
+  }
 }
