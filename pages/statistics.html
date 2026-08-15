@@ -63,35 +63,18 @@
             <div id="stats-range"></div>
           </div>
 
-          <!-- Números, gráfico e divisões: js/pages/statistics.js -->
-          <div class="stats-grid" id="stats-grid"></div>
+          <!-- Um cartão só; o conteúdo é pintado por js/pages/statistics.js -->
+          <section class="stats-panel page-panel" aria-label="Painel de estatísticas">
+            <section class="panel panel--hero" id="stats-hero" aria-label="Tempo por categoria"></section>
 
-          <section class="card" aria-labelledby="chart-label">
-            <div class="card__head">
-              <p class="eyebrow" id="chart-label">Atividades por dia</p>
-            </div>
-            <div id="stats-chart"></div>
+            <aside class="stats-rail" id="stats-rail" aria-label="Constância"></aside>
+
+            <div class="stats-grid" id="stats-grid"></div>
+
+            <section class="panel panel--chart" id="stats-chart" aria-label="Atividades por dia"></section>
+
+            <div class="stats-banner" id="stats-banner"></div>
           </section>
-
-          <div class="dash">
-            <div class="dash__col">
-              <section class="card" aria-labelledby="cat-label">
-                <div class="card__head">
-                  <p class="eyebrow" id="cat-label">Tempo por categoria</p>
-                </div>
-                <div id="stats-categories"></div>
-              </section>
-            </div>
-
-            <div class="dash__col">
-              <section class="card" aria-labelledby="streak-label">
-                <div class="card__head">
-                  <p class="eyebrow" id="streak-label">Constância</p>
-                </div>
-                <div id="stats-streaks"></div>
-              </section>
-            </div>
-          </div>
         </main>
       </div>
     </div>

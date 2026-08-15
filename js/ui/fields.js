@@ -214,10 +214,10 @@ export function selectField({ name, label, value, options, hint }) {
 }
 
 /* ---------- Categoria (lista suspensa) ----------
-   A versão em pastilhas ocupa uma faixa inteira do formulário. Quando
-   a categoria precisa dividir a linha com outro campo, o select cabe
-   na metade — e o ponto colorido ao lado guarda a leitura da cor,
-   que o <option> nativo não sabe pintar.
+   Um <select> nativo não deixa pintar as próprias opções — por isso
+   este é um combobox construído na mão: o gatilho mostra a categoria
+   atual com o ponto da cor, e a lista, ao abrir, repete o ponto ao
+   lado de cada opção, para reconhecer a categoria antes de ler o nome.
 */
 
 export function categorySelectField({
@@ -226,102 +226,134 @@ export function categorySelectField({
   value,
 }) {
   const categories = store.getCategories();
+  let current = value || categories[0]?.id;
 
-  const select = el(
-    "select",
-    { class: "select", id: fieldId(name), name },
-    categories.map((category) =>
-      el("option", {
-        value: category.id,
-        text: category.name,
-        selected: category.id === (value || categories[0]?.id),
-      })
+  const triggerId = fieldId(name);
+  const dot = el("span", { class: "select-dot", "aria-hidden": "true" });
+  const valueText = el("span", { class: "cat-select__value-text" });
+
+  const trigger = el(
+    "button",
+    {
+      class: "select cat-select__trigger",
+      type: "button",
+      id: triggerId,
+      "aria-haspopup": "listbox",
+      "aria-expanded": "false",
+      onclick: () => (list.hidden ? openList() : closeList()),
+      onkeydown: (event) => {
+        if ((event.key === "ArrowDown" || event.key === "ArrowUp") && list.hidden) {
+          event.preventDefault();
+          openList();
+        }
+      },
+    },
+    [valueText]
+  );
+
+  const options = categories.map((category) =>
+    el(
+      "li",
+      {
+        class: "cat-select__option",
+        role: "option",
+        tabindex: "-1",
+        dataset: { value: category.id },
+        "aria-selected": String(category.id === current),
+        onclick: () => {
+          current = category.id;
+          sync();
+          closeList();
+          trigger.focus();
+        },
+      },
+      [
+        el("span", { class: "cat-select__option-label", text: category.name }),
+        el("span", {
+          class: "cat-select__option-dot",
+          style: `--sw-color:${category.color}`,
+          "aria-hidden": "true",
+        }),
+      ]
     )
   );
 
-  const dot = el("span", { class: "select-dot", "aria-hidden": "true" });
-
-  const paintDot = () => {
-    const color = categories.find((c) => c.id === select.value)?.color;
-    dot.style.setProperty("--sw-color", color || "var(--accent)");
-  };
-
-  paintDot();
-  select.addEventListener("change", paintDot);
-
-  const control = el("div", { class: "select-wrap" }, [dot, select]);
-
-  const field = el("div", { class: "field" }, [
-    el("label", { for: select.id, text: label }),
-    control,
-  ]);
-
-  return {
-    name,
-    node: field,
-    input: select,
-    get: () => select.value,
-    set: (id) => {
-      select.value = id;
-      paintDot();
-    },
-    focus: () => select.focus(),
-    invalid(state) {
-      field.classList.toggle("field--invalid", Boolean(state));
-      select.setAttribute("aria-invalid", state ? "true" : "false");
-    },
-  };
-}
-
-/* ---------- Categoria (pastilhas coloridas) ---------- */
-
-export function categoryField({ name = "categoryId", label = "Categoria", value }) {
-  const categories = store.getCategories();
-  let current = value || categories[0]?.id;
-
-  const buttons = categories.map((category) =>
-    el("button", {
-      class: "swatch",
-      type: "button",
-      style: `--sw-color:${category.color}`,
-      "aria-pressed": String(category.id === current),
-      text: category.name,
-      onclick: () => {
-        current = category.id;
-        sync();
+  const list = el(
+    "ul",
+    {
+      class: "cat-select__list",
+      role: "listbox",
+      "aria-label": label,
+      hidden: true,
+      onkeydown: (event) => {
+        const index = options.indexOf(document.activeElement);
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          const dir = event.key === "ArrowDown" ? 1 : -1;
+          options[(index + dir + options.length) % options.length]?.focus();
+        } else if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          document.activeElement?.click?.();
+        } else if (event.key === "Escape") {
+          event.preventDefault();
+          closeList();
+          trigger.focus();
+        }
       },
-    })
+    },
+    options
   );
 
-  function sync() {
-    buttons.forEach((button, index) => {
-      button.setAttribute(
-        "aria-pressed",
-        String(categories[index].id === current)
-      );
-    });
+  function onDocMouseDown(event) {
+    if (!wrap.contains(event.target)) closeList();
   }
 
-  const group = el(
-    "div",
-    { class: "swatches", role: "group", "aria-label": label },
-    buttons
-  );
+  function openList() {
+    list.hidden = false;
+    trigger.setAttribute("aria-expanded", "true");
+    document.addEventListener("mousedown", onDocMouseDown, true);
+    (options.find((option) => option.dataset.value === current) || options[0])?.focus();
+  }
+
+  function closeList() {
+    if (list.hidden) return;
+    list.hidden = true;
+    trigger.setAttribute("aria-expanded", "false");
+    document.removeEventListener("mousedown", onDocMouseDown, true);
+  }
+
+  function sync() {
+    const category = categories.find((c) => c.id === current);
+    valueText.textContent = category?.name || "";
+    dot.style.setProperty("--sw-color", category?.color || "var(--accent)");
+    options.forEach((option) =>
+      option.setAttribute("aria-selected", String(option.dataset.value === current))
+    );
+  }
+
+  sync();
+
+  const wrap = el("div", { class: "select-wrap" }, [dot, trigger, list]);
 
   const field = el("div", { class: "field" }, [
-    el("label", { text: label }),
-    group,
+    el("label", { for: triggerId, text: label }),
+    wrap,
   ]);
 
   return {
     name,
     node: field,
+    input: trigger,
     get: () => current,
     set: (id) => {
       current = id;
       sync();
     },
-    invalid() {},
+    focus: () => trigger.focus(),
+    invalid(state) {
+      field.classList.toggle("field--invalid", Boolean(state));
+      trigger.setAttribute("aria-invalid", state ? "true" : "false");
+    },
   };
 }
 

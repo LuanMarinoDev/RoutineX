@@ -1,93 +1,274 @@
 /* =========================================================
    RoutineX — routines.css
+   Quadro semanal: uma coluna por dia, ocupando a tela toda.
    ========================================================= */
 
-.routine-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: var(--sp-4);
+/* A página do quadro usa toda a largura disponível. */
+body[data-page="routines"] .content {
+  max-width: none;
+  width: 100%;
 }
 
-.routine {
+/* ---------- Quadro (mobile first: uma coluna por vez, rolando) ---------- */
+
+.board {
+  /* Altura do topo + cabeçalho da página. Ajuste aqui se mudar o layout. */
+  --board-offset: 190px;
+
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 84vw;
+  gap: var(--sp-2);
+  align-items: stretch;
+  height: calc(100dvh - var(--board-offset));
+  min-height: 420px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+}
+
+/* ---------- Coluna do dia ---------- */
+
+.board__col {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-3);
-  padding: var(--sp-5);
+  min-width: 0;
+  overflow: hidden;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-md);
+  scroll-snap-align: start;
 }
 
-.routine[data-paused="true"] {
-  opacity: 0.6;
+.board__col[data-weekend="true"] {
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
 }
 
-.routine__title {
-  font-size: 1rem;
-  font-weight: 600;
+.board__col[data-today="true"] {
+  border-color: var(--accent);
 }
 
-.routine__time {
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  color: var(--text-2);
-}
-
-.weekdays {
+.board__head {
   display: flex;
-  gap: 4px;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border-bottom: 1px solid var(--border);
 }
 
-.weekdays span {
+.board__day {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.board__col[data-today="true"] .board__day {
+  color: var(--accent);
+}
+
+.board__count {
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: var(--r-xs);
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
   background: var(--surface-2);
   font-size: 0.6875rem;
   font-weight: 600;
   color: var(--text-3);
 }
 
-.weekdays span[data-on="true"] {
+.board__col[data-today="true"] .board__count {
   background: var(--accent-soft);
   color: var(--accent);
 }
 
-.routine__actions {
-  display: flex;
-  gap: var(--sp-2);
-  margin-top: auto;
-  padding-top: var(--sp-2);
+.board__load {
+  margin-left: auto;
+  font-size: 0.75rem;
 }
 
-/* Cabeçalho do cartão e observações — a lista ganhou conteúdo real. */
-.routine__head {
+/* A pilha de cartões rola sozinha dentro da coluna. */
+.board__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.board__body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.board__body::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+.board__empty {
+  padding: var(--sp-4) var(--sp-2);
+  text-align: center;
+  font-size: 0.8125rem;
+}
+
+.board__add {
+  flex-shrink: 0;
+  margin: 0 var(--sp-3) var(--sp-3);
+  padding: var(--sp-2);
+  border: 1px dashed var(--border);
+  border-radius: var(--r-xs);
+  background: transparent;
+  color: var(--text-3);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.board__add:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---------- Cartão da rotina ---------- */
+
+.rcard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+  padding: var(--sp-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--tl-color, var(--accent));
+  border-radius: var(--r-xs);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.rcard:hover {
+  transform: translateY(-1px);
+}
+
+.rcard[data-paused="true"] {
+  opacity: 0.6;
+  border-left-color: var(--text-3);
+}
+
+.rcard[data-paused="true"] .rcard__title {
+  text-decoration: line-through;
+  text-decoration-color: var(--text-3);
+}
+
+.rcard[data-outside="true"] {
+  opacity: 0.6;
+  border-left-style: dashed;
+}
+
+.rcard__head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: var(--sp-3);
-  flex-wrap: wrap;
+  gap: var(--sp-2);
 }
 
-.routine__meta {
-  font-size: 0.8125rem;
+.rcard__title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.35;
 }
 
-.routine__notes {
-  padding-top: var(--sp-2);
-  font-size: 0.8125rem;
-  line-height: 1.55;
+.rcard__time {
+  font-size: 0.75rem;
   color: var(--text-2);
-  white-space: pre-wrap;
 }
 
-.routine[data-paused="true"] {
-  opacity: 0.62;
+.rcard__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
-.routine[data-paused="true"] .routine__title {
-  text-decoration: line-through;
-  text-decoration-color: var(--text-3);
+/* Fita dos dias: repete em todo cartão da mesma rotina,
+   com o dia da coluna contornado. */
+.rcard__days {
+  display: flex;
+  gap: 3px;
+}
+
+.rcard__days span {
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  border-radius: 4px;
+  background: var(--surface);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  color: var(--text-3);
+}
+
+.rcard__days span[data-on="true"] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.rcard__days span[data-current="true"] {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.rcard__notes {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--text-3);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---------- Responsivo ---------- */
+
+/* A partir daqui cabe mais de um dia por vez: colunas mais largas,
+   sem precisar prender no snap exato. */
+@media (min-width: 700px) {
+  .board {
+    grid-auto-columns: minmax(230px, 1fr);
+    scroll-snap-type: x proximity;
+  }
+}
+
+/* Tela larga o bastante pra semana inteira caber sem rolar. */
+@media (min-width: 1200px) {
+  .board {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    overflow-x: visible;
+    scroll-snap-type: none;
+  }
+
+  .board__col {
+    scroll-snap-align: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rcard {
+    transition: none;
+  }
+
+  .rcard:hover {
+    transform: none;
+  }
 }

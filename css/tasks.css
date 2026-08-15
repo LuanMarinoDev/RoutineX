@@ -1,5 +1,7 @@
 /* =========================================================
    RoutineX — tasks.css
+   Cada tarefa é uma linha fina: título, prazo, prioridade e
+   categoria lado a lado. Só cresce quando a nota é longa.
    ========================================================= */
 
 .task-groups {
@@ -11,15 +13,20 @@
 .task-group__head {
   display: flex;
   align-items: center;
-  gap: var(--sp-3);
-  margin-bottom: var(--sp-3);
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-2);
+  margin-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--border);
 }
+
+/* ---------- Linha da tarefa ---------- */
 
 .task-item {
   display: flex;
   align-items: flex-start;
   gap: var(--sp-3);
-  padding: var(--sp-4);
+  min-height: 44px;
+  padding: var(--sp-2) var(--sp-3);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
@@ -31,23 +38,69 @@
   border-color: var(--border-strong);
 }
 
+/* O corpo vira uma faixa horizontal: título, meta e nota na mesma linha. */
 .task-item__body {
   flex: 1;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-3);
 }
 
 .task-item__title {
-  font-size: 0.9375rem;
+  flex: 0 1 auto;
+  flex-basis: 100%;
+  min-width: 0;
+  font-size: 0.875rem;
   font-weight: 550;
+  white-space: normal;
 }
 
 .task-item__meta {
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: var(--sp-3);
-  margin-top: var(--sp-1);
-  font-size: 0.8125rem;
+  margin-top: 0;
+  font-size: 0.75rem;
   color: var(--text-2);
+}
+
+/* Divisória fina entre o título e os dados — só cabe quando o
+   título já tem a linha só pra ele (ver min-width:721px abaixo). */
+.task-item__meta::before {
+  content: "";
+  display: none;
+  width: 1px;
+  height: 12px;
+  background: var(--border);
+}
+
+/* A nota é o único trecho que pode alongar a linha — até duas linhas. */
+.task-item__body > p:not(.task-item__title),
+.task-item__body > .task-item__notes {
+  flex: 1 1 200px;
+  min-width: 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--text-3);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Nem título nem meta entram na regra da nota. */
+.task-item__body > p.task-item__title,
+.task-item__body > .task-item__meta {
+  display: flex;
+  -webkit-line-clamp: none;
+  color: inherit;
+}
+
+.task-item__title {
+  display: block;
 }
 
 .task-item[data-done="true"] {
@@ -58,12 +111,15 @@
   text-decoration: line-through;
 }
 
+/* ---------- Prioridade ---------- */
+
 .priority {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   font-size: 0.75rem;
   color: var(--text-2);
+  white-space: nowrap;
 }
 
 .priority::before {
@@ -78,18 +134,21 @@
 .priority[data-level="alta"]::before { background: var(--warning); }
 .priority[data-level="urgente"]::before { background: var(--danger); }
 
-/* Grupos por prazo */
-.task-groups {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-6);
-}
+/* ---------- A partir daqui a linha cabe inteira ---------- */
 
-.task-group__head {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  padding-bottom: var(--sp-2);
-  margin-bottom: var(--sp-2);
-  border-bottom: 1px solid var(--border);
+@media (min-width: 721px) {
+  .task-item {
+    align-items: center;
+  }
+
+  .task-item__title {
+    flex-basis: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .task-item__meta::before {
+    display: block;
+  }
 }
